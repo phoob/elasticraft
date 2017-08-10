@@ -102,9 +102,6 @@ class ElasticraftService extends Component
                             'elastic.dateIndexed' => [
                                 'type' => 'date',
                                 'format' => 'epoch_second'
-                            ],
-                            'uri' => [
-                                'type' => 'keyword'
                             ]
                         ],
                     ],
