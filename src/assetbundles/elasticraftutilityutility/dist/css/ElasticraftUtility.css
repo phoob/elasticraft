@@ -1,0 +1,22 @@
+/**
+ * Elasticraft plugin for Craft CMS
+ *
+ * ElasticraftUtility Utility CSS
+ *
+ * @author    Peter Holme Obrestad
+ * @copyright Copyright (c) 2017 Peter Holme Obrestad
+ * @link      https://dfo.no
+ * @package   Elasticraft
+ * @since     1.0.0
+ */
+
+pre {
+  border: 1px solid #ccc;
+  padding: .5rem;
+}
+
+.string { color: green; }
+.number { color: darkorange; }
+.boolean { color: blue; }
+.null { color: magenta; }
+.key { color: crimson; }

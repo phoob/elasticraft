@@ -1,0 +1,52 @@
+{
+    "name": "dfo/elasticraft",
+    "description": "Desc.",
+    "type": "craft-plugin",
+    "version": "1.0.0",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "elasticraft"
+    ],
+    "support": {
+        "docs": "https://github.com/netliferesearch/craft-elastic/blob/master/README.md",
+        "issues": "https://github.com/netliferesearch/craft-elastic/issues"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Peter Holme Obrestad",
+            "homepage": "https://dfo.no"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "~3.0.0-beta.1",
+        "elasticsearch/elasticsearch": "^5.2",
+        "craftcms/element-api": "^2.0"
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+          "dfo\\elasticraft\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "Elasticraft",
+        "handle": "elasticraft",
+        "schemaVersion": "1.0.0",
+        "hasCpSettings": true,
+        "hasCpSection": false,
+        "changelogUrl": "https://raw.githubusercontent.com/netliferesearch/craft-elastic/master/CHANGELOG.md",
+        "components": {
+            "elasticraftService": "dfo\\elasticraft\\services\\ElasticraftService"
+        },
+        "class": "dfo\\elasticraft\\Elasticraft"
+    }
+}

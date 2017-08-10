@@ -1,0 +1,19 @@
+{#
+/**
+ * Elasticraft plugin for Craft CMS
+ *
+ * ElasticraftWidget Widget Body
+ *
+ * @author    Peter Holme Obrestad
+ * @copyright Copyright (c) 2017 Peter Holme Obrestad
+ * @link      https://dfo.no
+ * @package   Elasticraft
+ * @since     1.0.0
+ */
+#}
+
+{% set iconUrl = view.getAssetManager().getPublishedUrl('@dfo/elasticraft/assetbundles/elasticraftwidgetwidget/dist', true) ~ '/img/ElasticraftWidget-icon.svg' %}
+
+<img src="{{ iconUrl }}" height="64" width="64" />
+
+<p>{{ message }}</p>
