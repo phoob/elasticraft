@@ -247,7 +247,13 @@ class ElasticraftService extends Component
 
     private function getElasticHosts(): array
     {
-        return explode( ',', Elasticraft::$plugin->getSettings()->hosts );
+        $uris = array_filter(
+            explode( ',', Elasticraft::$plugin->getSettings()->hosts ), 
+            function($uri){ return filter_var($uri, FILTER_VALIDATE_URL); }
+        );
+        if (empty($uris))
+            return ['http://localhost:9200'];
+        return $uris;
     }
 
     private function getIndexName(): string
