@@ -240,7 +240,7 @@ class ElasticraftService extends Component
                 ->setHosts( $this->getElasticHosts() )
                 ->build();
         } catch (\Exception $e) {
-            throw new \Exception("No Elasticsearch hosts are defined", 1);
+            throw $e;
         }
         return $client;
     }
