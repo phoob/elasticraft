@@ -235,10 +235,13 @@ class ElasticraftService extends Component
 
     private function getClient(): \Elasticsearch\Client
     {
-        $hosts = $this->getElasticHosts();
-        $client = ClientBuilder::create()
-            ->setHosts( $hosts )
-            ->build();
+        try {
+            $client = ClientBuilder::create()
+                ->setHosts( $this->getElasticHosts() )
+                ->build();
+        } catch (\Exception $e) {
+            throw new \Exception("No Elasticsearch hosts are defined", 1);
+        }
         return $client;
     }
 
