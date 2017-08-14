@@ -70,7 +70,7 @@ class ElasticDocument extends Model
 
     protected function loadByEntry( craft\elements\Entry $entry )
     {
-        $this->type = $entry->getType()->handle;
+        $this->type = $entry->section->handle;
         $this->id = $entry->id;
         if ( isset( $this->transformers[$this->type] ) ) {
             $this->body = $this->transformers[$this->type]->transform($entry);
