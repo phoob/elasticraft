@@ -135,6 +135,11 @@ class Elasticraft extends Plugin
                     $doc = ElasticDocument::withEntry( $event->element );
                     return $this->elasticraftService->indexDocument($doc);
                 }
+
+                if ( $event->element instanceof craft\elements\GlobalSet ) {
+                    $doc = ElasticDocument::withGlobalSet( $event->element );
+                    return $this->elasticraftService->indexDocument($doc);
+                }
             }
         );
 
@@ -158,8 +163,8 @@ class Elasticraft extends Plugin
                 if ( $event->element instanceof craft\elements\Entry ) {
                     // Not working: $doc = ElasticDocument::withEntry( $event->element );
                     // Fetch entry again to get URI:
-                    $doc = ElasticDocument::withEntry( 
-                        Entry::find()->id( $event->element->id )->one() 
+                    $doc = ElasticDocument::withEntry(
+                        Entry::find()->id( $event->element->id )->one()
                     );
                     return $this->elasticraftService->indexDocument($doc);
                 }

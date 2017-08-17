@@ -43,11 +43,11 @@ class ElasticDocument extends Model
     public $body = [];
     public $dateCreated;
     public $dateUpdated;
-    // parent children relationships requires different document types in Elasticsearch for now. 
+    // parent children relationships requires different document types in Elasticsearch for now.
     //public $parent;
     //public $routing;
 
-    protected $transformers = []; 
+    protected $transformers = [];
 
     public function init()
     {
@@ -68,6 +68,13 @@ class ElasticDocument extends Model
         return $instance;
     }
 
+    public static function withGlobalSet( craft\elements\GlobalSet $globalSet )
+    {
+        $instance = new self();
+        $instance->loadByGlobalSet( $globalSet );
+        return $instance;
+    }
+
     protected function loadByEntry( craft\elements\Entry $entry )
     {
         $this->type = $entry->section->handle;
@@ -77,6 +84,18 @@ class ElasticDocument extends Model
         }
         $this->body['elastic']['dateCreated'] = $entry->dateCreated->format('U');
         $this->body['elastic']['dateUpdated'] = $entry->dateUpdated->format('U');
+        $this->body['elastic']['dateIndexed'] = time();
+    }
+
+    protected function loadByGlobalSet( craft\elements\GlobalSet $globalSet )
+    {
+        $this->type = 'global';
+        $this->id = $globalSet->handle;
+        if ( isset( $this->transformers[$this->type] ) ) {
+            $this->body = $this->transformers[$this->type]->transform($globalSet);
+        }
+        $this->body['elastic']['dateCreated'] = $globalSet->dateCreated->format('U');
+        $this->body['elastic']['dateUpdated'] = $globalSet->dateUpdated->format('U');
         $this->body['elastic']['dateIndexed'] = time();
     }
 
