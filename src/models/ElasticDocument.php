@@ -89,11 +89,14 @@ class ElasticDocument extends Model
 
     protected function loadByGlobalSet( craft\elements\GlobalSet $globalSet )
     {
-        $this->type = 'global';
+        // We'll prefix the type in order to avoid conflict with channels/structures
+        $this->type = 'global:' . $globalSet->handle;
         $this->id = $globalSet->handle;
+
         if ( isset( $this->transformers[$this->type] ) ) {
             $this->body = $this->transformers[$this->type]->transform($globalSet);
         }
+
         $this->body['elastic']['dateCreated'] = $globalSet->dateCreated->format('U');
         $this->body['elastic']['dateUpdated'] = $globalSet->dateUpdated->format('U');
         $this->body['elastic']['dateIndexed'] = time();
