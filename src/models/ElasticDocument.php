@@ -90,7 +90,7 @@ class ElasticDocument extends Model
     protected function loadByGlobalSet( craft\elements\GlobalSet $globalSet )
     {
         // We'll prefix the type in order to avoid conflict with channels/structures
-        $this->type = 'global:' . $globalSet->handle;
+        $this->type = 'global-' . $globalSet->handle;
         $this->id = $globalSet->handle;
 
         if ( isset( $this->transformers[$this->type] ) ) {
