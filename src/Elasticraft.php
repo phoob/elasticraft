@@ -14,7 +14,8 @@ use dfo\elasticraft\services\ElasticraftService as ElasticraftServiceService;
 use dfo\elasticraft\models\Settings;
 use dfo\elasticraft\utilities\ElasticraftUtility as ElasticraftUtilityUtility;
 use dfo\elasticraft\widgets\ElasticraftWidget as ElasticraftWidgetWidget;
-use dfo\elasticraft\models\ElasticDocument;
+use dfo\elasticraft\jobs\ElasticJob as ElasticJob;
+use dfo\elasticraft\models\ElasticDocument as ElasticDocument;
 
 use Craft;
 use craft\base\Plugin;
@@ -131,14 +132,10 @@ class Elasticraft extends Plugin
             Elements::className(),
             Elements::EVENT_AFTER_SAVE_ELEMENT,
             function (ElementEvent $event) {
-                if ( $event->element instanceof craft\elements\Entry ) {
-                    $doc = ElasticDocument::withEntry( $event->element );
-                    return $this->elasticraftService->indexDocument($doc);
-                }
-
-                if ( $event->element instanceof craft\elements\GlobalSet ) {
-                    $doc = ElasticDocument::withGlobalSet( $event->element );
-                    return $this->elasticraftService->indexDocument($doc);
+                if ( $doc = ElasticDocument::withElement( $event->element ) ) {
+                    Craft::$app->queue->push(new ElasticJob([
+                        'doc' => $doc
+                    ]));
                 }
             }
         );
@@ -147,26 +144,31 @@ class Elasticraft extends Plugin
             Elements::className(),
             Elements::EVENT_BEFORE_DELETE_ELEMENT,
             function (ElementEvent $event) {
-                if ( $event->element instanceof craft\elements\Entry ) {
-                    $doc = ElasticDocument::withEntry( $event->element );
-                    return $this->elasticraftService->deleteDocument($doc);
+                if ( $doc = ElasticDocument::withElement( $event->element ) ) {
+                    Craft::$app->queue->push(new ElasticJob([
+                        'doc' => $doc,
+                        'action' => 'delete'
+                    ]));
                 }
             }
         );
 
         Event::on(
             Elements::className(),
-            // Structures::EVENT_AFTER_MOVE_ELEMENT,
             // ref https://github.com/craftcms/cms/issues/1828
             Elements::EVENT_AFTER_UPDATE_SLUG_AND_URI,
             function (ElementEvent $event) {
-                if ( $event->element instanceof craft\elements\Entry ) {
-                    // Not working: $doc = ElasticDocument::withEntry( $event->element );
-                    // Fetch entry again to get URI:
-                    $doc = ElasticDocument::withEntry(
-                        Entry::find()->id( $event->element->id )->one()
-                    );
-                    return $this->elasticraftService->indexDocument($doc);
+                // Only do this if element is an entry (for now)
+                if ( !$event->element instanceof craft\elements\Entry )
+                    return;
+                // Must fetch entry again to get the updated URI
+                $entry = Entry::find()
+                    ->id( $event->element->id )
+                    ->one();
+                if ( $doc = ElasticDocument::withElement( $entry ) ) {
+                    Craft::$app->queue->push(new ElasticJob([
+                        'doc' => $doc
+                    ]));
                 }
             }
         );

@@ -14,7 +14,7 @@ use dfo\elasticraft\Elasticraft;
 
 use Craft;
 use craft\base\Model;
-use craft\elements\Entry;
+use craft\base\Element;
 
 /**
  * ElasticDocument Model
@@ -30,6 +30,10 @@ use craft\elements\Entry;
  */
 class ElasticDocument extends Model
 {
+
+    const UNKNOWN_TYPE = 'unknown';
+    const GLOBALSET_PREFIX = 'global-';
+
     // Public Properties
     // =========================================================================
 
@@ -61,45 +65,47 @@ class ElasticDocument extends Model
     // Public Methods
     // =========================================================================
 
-    public static function withEntry( craft\elements\Entry $entry )
+    public static function withElement( craft\base\Element $element )
     {
         $instance = new self();
-        $instance->loadByEntry( $entry );
+        $instance->loadByElement( $element );
         return $instance;
     }
 
-    public static function withGlobalSet( craft\elements\GlobalSet $globalSet )
+    protected function loadByElement( craft\base\Element $element )
     {
-        $instance = new self();
-        $instance->loadByGlobalSet( $globalSet );
-        return $instance;
-    }
+        // set type and id based on the type of element
+        switch ( true ) {
+            case $element instanceof craft\elements\Entry:
+                $this->type = $element->section->handle;
+                $this->id = $element->id;
+                break;
+            
+            case $element instanceof craft\elements\GlobalSet:
+                $this->type = self::GLOBALSET_PREFIX . $element->handle;
+                $this->id = $element->handle;
+                break;
 
-    protected function loadByEntry( craft\elements\Entry $entry )
-    {
-        $this->type = $entry->section->handle;
-        $this->id = $entry->id;
-        if ( isset( $this->transformers[$this->type] ) ) {
-            $this->body = $this->transformers[$this->type]->transform($entry);
-        }
-        $this->body['elastic']['dateCreated'] = $entry->dateCreated->format('U');
-        $this->body['elastic']['dateUpdated'] = $entry->dateUpdated->format('U');
-        $this->body['elastic']['dateIndexed'] = time();
-    }
+            // to do: add more element types.
 
-    protected function loadByGlobalSet( craft\elements\GlobalSet $globalSet )
-    {
-        // We'll prefix the type in order to avoid conflict with channels/structures
-        $this->type = 'global-' . $globalSet->handle;
-        $this->id = $globalSet->handle;
-
-        if ( isset( $this->transformers[$this->type] ) ) {
-            $this->body = $this->transformers[$this->type]->transform($globalSet);
+            default:
+                return false;
         }
 
-        $this->body['elastic']['dateCreated'] = $globalSet->dateCreated->format('U');
-        $this->body['elastic']['dateUpdated'] = $globalSet->dateUpdated->format('U');
+        // set document body if one is defined in the config.
+        if( isset( $this->transformers[$this->type] ) ) {
+            $this->body = $this->transformers[$this->type]->transform($element);
+        }
+
+        // add index time to body.
         $this->body['elastic']['dateIndexed'] = time();
+
+        // if the element type has properties for when the element is created or updated, add these to body.
+        if( isset( $element->dateCreated ) )
+            $this->body['elastic']['dateCreated'] = (int)$element->dateCreated->format('U');
+        if( isset( $element->dateUpdated ) )
+            $this->body['elastic']['dateCreated'] = (int)$element->dateUpdated->format('U');
+
     }
 
     /**

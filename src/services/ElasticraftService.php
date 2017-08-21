@@ -175,6 +175,11 @@ class ElasticraftService extends Component
         return $this->bulk([$doc], $action='delete');
     }
 
+    public function processDocument( ElasticDocument $doc, String $action = 'index')
+    {
+        return $this->bulk([$doc], $action);
+    }
+
     // https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/_indexing_documents.html
     protected function bulk(array $docs, string $action='index')
     {
