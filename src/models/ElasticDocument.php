@@ -45,8 +45,8 @@ class ElasticDocument extends Model
     public $id;
     public $type;
     public $body = [];
-    public $dateCreated;
-    public $dateUpdated;
+    public $ancestors;
+    public $descendants;
     // parent children relationships requires different document types in Elasticsearch for now.
     //public $parent;
     //public $routing;
@@ -105,6 +105,12 @@ class ElasticDocument extends Model
             $this->body['elastic']['dateCreated'] = (int)$element->dateCreated->format('U');
         if( isset( $element->dateUpdated ) )
             $this->body['elastic']['dateCreated'] = (int)$element->dateUpdated->format('U');
+
+        // copy ancestors and descendants the element has ancestors or descendants, add these
+        if( isset( $element->ancestors ) )
+            $this->ancestors = $element->ancestors;
+        if( isset( $element->descendants ) )
+            $this->descendants = $element->descendants;
 
     }
 

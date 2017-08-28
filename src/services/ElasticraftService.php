@@ -175,8 +175,30 @@ class ElasticraftService extends Component
         return $this->bulk([$doc], $action='delete');
     }
 
-    public function processDocument( ElasticDocument $doc, String $action = 'index')
+    public function processDocument( ElasticDocument $doc, String $action = 'index', Bool $processAncestorsAndDescendants = true)
     {
+        $ancs = $doc->ancestors->all();
+        $ancstitles = '';
+        foreach ($ancs as $anc) {
+            $ancstitles .= 'anc: ' . $anc->title . ' ';
+        }
+
+        
+
+/*        if( isset( $doc->ancestors ) || isset( $doc->descendants ) ) {
+            $docs = array_map(function($ancestor) {
+                $ancestor = ElasticDocument::withElement( $ancestor );
+            }, array_merge( $doc->ancestors->all(), $doc->descendants->all() ) );
+            $this->bulk($docs);
+        }
+*/
+        if( isset( $doc->ancestors ) ) {
+            $docs = array_map(function($ancestor) {
+                $ancestor = ElasticDocument::withElement( $ancestor );
+            }, $doc->ancestors->all() );
+            $this->bulk($docs);
+        }
+
         return $this->bulk([$doc], $action);
     }
 

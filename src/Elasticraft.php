@@ -26,6 +26,7 @@ use craft\web\UrlManager;
 use craft\services\Utilities;
 use craft\services\Dashboard;
 use craft\services\Elements;
+use craft\services\Structures;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\events\ElementEvent;
@@ -125,7 +126,7 @@ class Elasticraft extends Plugin
                 $event->types[] = ElasticraftWidgetWidget::class;
             }
         );
-
+/*
         // Register index events
         // Must use "AFTER", using "BEFORE" led to error when trying to save new entry.
         Event::on(
@@ -156,22 +157,51 @@ class Elasticraft extends Plugin
         Event::on(
             Elements::className(),
             // ref https://github.com/craftcms/cms/issues/1828
-            Elements::EVENT_AFTER_UPDATE_SLUG_AND_URI,
+            Elements::EVENT_BEFORE_UPDATE_SLUG_AND_URI,
             function (ElementEvent $event) {
-                // Only do this if element is an entry (for now)
-                if ( !$event->element instanceof craft\elements\Entry )
-                    return;
-                // Must fetch entry again to get the updated URI
-                $entry = Entry::find()
-                    ->id( $event->element->id )
-                    ->one();
-                if ( $doc = ElasticDocument::withElement( $entry ) ) {
+                if ( $doc = ElasticDocument::withElement( $event->element ) ) {
                     Craft::$app->queue->push(new ElasticJob([
                         'doc' => $doc
                     ]));
                 }
             }
         );
+
+
+        Event::on(
+            Elements::className(),
+            // ref https://github.com/craftcms/cms/issues/1828
+            Elements::EVENT_AFTER_UPDATE_SLUG_AND_URI,
+            function (ElementEvent $event) {
+                if ( $doc = ElasticDocument::withElement( $event->element ) ) {
+                    Craft::$app->queue->push(new ElasticJob([
+                        'doc' => $doc
+                    ]));
+                }
+            }
+        );
+*/
+        Event::on(
+            Structures::className(),
+            Structures::EVENT_BEFORE_MOVE_ELEMENT,
+            function (MoveElementEvent $event) {
+                Craft::$app->queue->push(new ElasticJob([
+                    'elements' => $event->element
+                ]));
+            }
+        );
+
+        Event::on(
+            Elements::className(),
+            // ref https://github.com/craftcms/cms/issues/1828
+            Elements::EVENT_AFTER_UPDATE_SLUG_AND_URI,
+            function (ElementEvent $event) {
+                Craft::$app->queue->push(new ElasticJob([
+                    'elements' => $event->element
+                ]));
+            }
+        );
+
 
         // Do something after we're installed
         Event::on(
