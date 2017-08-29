@@ -89,7 +89,7 @@ class DefaultController extends Controller
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $entries = $this->actionGetEntries($limit);
         $entries = array_map(function($entry){
-            return ElasticDocument::withEntry( $entry );
+            return ElasticDocument::withElement( $entry );
         }, $entries);
         return $entries;
     }
