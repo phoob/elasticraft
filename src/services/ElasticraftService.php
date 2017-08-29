@@ -42,8 +42,8 @@ class ElasticraftService extends Component
     {
         parent::init();
 
-        $this->client =  $this->getClient();
-        $this->indexName = $this->getIndexName();
+        $this->client =  $this->_getClient();
+        $this->indexName = $this->_getIndexName();
 
         # Since all returns are supposed to be JSON, add this here.
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
@@ -150,60 +150,23 @@ class ElasticraftService extends Component
         return $response;
     }
 
-    public function indexDocument(ElasticDocument $doc)
+    public function indexAllElements()
     {
-        return $this->bulk([$doc]);
-    }
-
-    public function indexDocuments(array $docs)
-    {
-        return $this->bulk($docs);
-    }
-
-    public function indexAllDocuments()
-    {
-        $entries = Entry::find()
+        $elements = Entry::find()
             ->all();
-        $docs = array_map( function($entry) {
-            return ElasticDocument::withEntry( $entry );
-        }, $entries );
-        return $this->indexDocuments($docs);
+        $docs = array_map( function($element) {
+            return ElasticDocument::withElement( $element );
+        }, $elements );
+        return $this->processDocuments($docs);
     }
 
-    public function deleteDocument(ElasticDocument $doc)
+    public function processDocument( ElasticDocument $doc, string $action = 'index')
     {
-        return $this->bulk([$doc], $action='delete');
-    }
-
-    public function processDocument( ElasticDocument $doc, String $action = 'index', Bool $processAncestorsAndDescendants = true)
-    {
-        $ancs = $doc->ancestors->all();
-        $ancstitles = '';
-        foreach ($ancs as $anc) {
-            $ancstitles .= 'anc: ' . $anc->title . ' ';
-        }
-
-        
-
-/*        if( isset( $doc->ancestors ) || isset( $doc->descendants ) ) {
-            $docs = array_map(function($ancestor) {
-                $ancestor = ElasticDocument::withElement( $ancestor );
-            }, array_merge( $doc->ancestors->all(), $doc->descendants->all() ) );
-            $this->bulk($docs);
-        }
-*/
-        if( isset( $doc->ancestors ) ) {
-            $docs = array_map(function($ancestor) {
-                $ancestor = ElasticDocument::withElement( $ancestor );
-            }, $doc->ancestors->all() );
-            $this->bulk($docs);
-        }
-
-        return $this->bulk([$doc], $action);
+        return $this->processDocuments([$doc], $action);
     }
 
     // https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/_indexing_documents.html
-    protected function bulk(array $docs, string $action='index')
+    protected function processDocuments(array $docs, string $action='index')
     {
         // filter out non-ElasticDocuments
         $docs = array_filter($docs, function($doc) {
@@ -260,11 +223,11 @@ class ElasticraftService extends Component
     // Private methods
     // =========================================================================
 
-    private function getClient(): \Elasticsearch\Client
+    private function _getClient(): \Elasticsearch\Client
     {
         try {
             $client = ClientBuilder::create()
-                ->setHosts( $this->getElasticHosts() )
+                ->setHosts( $this->_getElasticHosts() )
                 ->build();
         } catch (\Exception $e) {
             throw $e;
@@ -272,7 +235,7 @@ class ElasticraftService extends Component
         return $client;
     }
 
-    private function getElasticHosts(): array
+    private function _getElasticHosts(): array
     {
         $uris = array_filter(
             explode( ',', Elasticraft::$plugin->getSettings()->hosts ), 
@@ -283,7 +246,7 @@ class ElasticraftService extends Component
         return $uris;
     }
 
-    private function getIndexName(): string
+    private function _getIndexName(): string
     {
         return Elasticraft::$plugin->getSettings()->indexName;
     }

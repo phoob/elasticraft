@@ -126,18 +126,20 @@ class Elasticraft extends Plugin
                 $event->types[] = ElasticraftWidgetWidget::class;
             }
         );
-/*
+
         // Register index events
         // Must use "AFTER", using "BEFORE" led to error when trying to save new entry.
         Event::on(
             Elements::className(),
             Elements::EVENT_AFTER_SAVE_ELEMENT,
             function (ElementEvent $event) {
-                if ( $doc = ElasticDocument::withElement( $event->element ) ) {
-                    Craft::$app->queue->push(new ElasticJob([
-                        'doc' => $doc
-                    ]));
-                }
+                Craft::$app->queue->push(new ElasticJob([
+                    'elements' => array_merge(
+                        [$event->element],
+                        $event->element->getAncestors()->all(),
+                        $event->element->getDescendants()->all()
+                    )
+                ]));
             }
         );
 
@@ -145,63 +147,36 @@ class Elasticraft extends Plugin
             Elements::className(),
             Elements::EVENT_BEFORE_DELETE_ELEMENT,
             function (ElementEvent $event) {
-                if ( $doc = ElasticDocument::withElement( $event->element ) ) {
-                    Craft::$app->queue->push(new ElasticJob([
-                        'doc' => $doc,
-                        'action' => 'delete'
-                    ]));
-                }
+                Craft::$app->queue->push(new ElasticJob([
+                    'elements' => [$event->element],
+                    'action' => 'delete'
+                ]));
             }
         );
 
-        Event::on(
-            Elements::className(),
-            // ref https://github.com/craftcms/cms/issues/1828
-            Elements::EVENT_BEFORE_UPDATE_SLUG_AND_URI,
-            function (ElementEvent $event) {
-                if ( $doc = ElasticDocument::withElement( $event->element ) ) {
-                    Craft::$app->queue->push(new ElasticJob([
-                        'doc' => $doc
-                    ]));
-                }
-            }
-        );
-
-
-        Event::on(
-            Elements::className(),
-            // ref https://github.com/craftcms/cms/issues/1828
-            Elements::EVENT_AFTER_UPDATE_SLUG_AND_URI,
-            function (ElementEvent $event) {
-                if ( $doc = ElasticDocument::withElement( $event->element ) ) {
-                    Craft::$app->queue->push(new ElasticJob([
-                        'doc' => $doc
-                    ]));
-                }
-            }
-        );
-*/
         Event::on(
             Structures::className(),
             Structures::EVENT_BEFORE_MOVE_ELEMENT,
             function (MoveElementEvent $event) {
                 Craft::$app->queue->push(new ElasticJob([
-                    'elements' => $event->element
+                    'elements' => [$event->element->getParent()]
                 ]));
             }
         );
 
         Event::on(
             Elements::className(),
-            // ref https://github.com/craftcms/cms/issues/1828
             Elements::EVENT_AFTER_UPDATE_SLUG_AND_URI,
             function (ElementEvent $event) {
                 Craft::$app->queue->push(new ElasticJob([
-                    'elements' => $event->element
+                    'elements' => array_merge(
+                        [$event->element],
+                        $event->element->getAncestors()->all(),
+                        $event->element->getDescendants()->all()
+                        )
                 ]));
             }
         );
-
 
         // Do something after we're installed
         Event::on(

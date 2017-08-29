@@ -43,21 +43,11 @@ class ElasticJob extends BaseJob
 
     public function execute($queue)
     {
-
-        if ( isset( $this->elements ) ) {
-            // Allow $elements to be single document
-            if ( !is_array( $this->elements ) ) $this->elements = [$this->elements];
-        } /* else {
-            // If no $elements or $doc, reindex all entries.
-            $entries = Entry::find()->all();
-            $globalsets = GlobalSet::find()->all();
-            $this->elements = array_merge( $entries, $globalsets );
-            return;
-        } */
+        // Allow $elements to be single element
+        if ( !is_array( $this->elements ) ) $this->elements = [$this->elements];
 
         foreach ( $this->elements as $i => $element ) {
             $this->setProgress($queue, $i / count( $this->elements ) );
-            Craft::error($element->title);
             if ( $doc = ElasticDocument::withElement( $element ) ) {
                 Elasticraft::$plugin->elasticraftService->processDocument( $doc, $this->action );
             }
