@@ -1,6 +1,6 @@
 {
     "name": "dfo/elasticraft",
-    "description": "Desc.",
+    "description": "Elasticsearch plugin for Craft 3",
     "type": "craft-plugin",
     "version": "0.1.0",
     "keywords": [
