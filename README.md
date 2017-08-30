@@ -1,8 +1,6 @@
 # Elasticraft plugin for Craft CMS 3.x
 
-Desc.
-
-![Screenshot](resources/img/plugin-logo.png)
+Elasticsearch plugin for Craft 3
 
 ## Installation
 
@@ -18,20 +16,25 @@ Elasticraft works on Craft 3.x.
 
 ## Elasticraft Overview
 
--Insert text here-
+Provides basic functionality to index entries and other craft elements to an elasticsearch server.
 
 ## Configuring Elasticraft
 
--Insert text here-
+Put the server details in your `.env`:
+
+```
+ELASTIC_HOSTS=localhost:9200
+ELASTIC_INDEX_NAME=craftdev
+```
+
+Copy `src/config.php` to `craft/config/elasticraft.php` and configure pagetransformers for the elements you wish to index to Elasticsearch.
 
 ## Using Elasticraft
 
--Insert text here-
+Elasticraft indexes elements (and their descendants and ancestors) when you save or move an element. It also deletes the element from elasticsearch when the element is deleted in Craft.
 
 ## Elasticraft Roadmap
 
-Some things to do, and ideas for potential features:
-
-* Release it
+* Make it more stable and test it. It has not been used in a production environment yet.
 
 Brought to you by [Peter Holme Obrestad](https://dfo.no)
