@@ -30,28 +30,29 @@ class ElasticJob extends BaseJob
     // Public Properties
     // =========================================================================
 
-    /**
-     * Some attribute
-     *
-     * @var string
-     */
-    public $elements;
-    public $action = 'index';
+    public $index = [];
+    public $delete = [];
 
     // Public Methods
     // =========================================================================
 
     public function execute($queue)
     {
-        // Allow $elements to be single element
-        if ( !is_array( $this->elements ) ) $this->elements = [$this->elements];
+        $params = Elasticraft::$plugin->elasticraftService->createBulkParams();
 
-        foreach ( $this->elements as $i => $element ) {
-            $this->setProgress($queue, $i / count( $this->elements ) );
+        foreach ( $this->index as $element ) {
             if ( $doc = ElasticDocument::withElement( $element ) ) {
-                Elasticraft::$plugin->elasticraftService->processDocument( $doc, $this->action );
+                $params = Elasticraft::$plugin->elasticraftService->addDocToBulkParams($params, $doc, 'index' );
             }
         }
+
+        foreach ( $this->delete as $element ) {
+            if ( $doc = ElasticDocument::withElement( $element ) ) {
+                $params = Elasticraft::$plugin->elasticraftService->addDocToBulkParams($params, $doc, 'delete' );
+            }
+        }
+
+        Elasticraft::$plugin->elasticraftService->bulkProcess($params);
 
     }
 

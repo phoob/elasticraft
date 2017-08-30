@@ -27,7 +27,7 @@ function refreshContent() {
                     $('#indexDoesNotExist').addClass('hidden');
                     $('#indexUtilities').removeClass('hidden');
                     
-                    Craft.postActionRequest('elasticraft/default/index-stats', function(indexStats) {
+                    Craft.postActionRequest('elasticraft/default/get-index-stats', function(indexStats) {
                         $('#numDocsIndexed').html(indexStats['_all']['primaries']['docs']['count']);
                     });
 

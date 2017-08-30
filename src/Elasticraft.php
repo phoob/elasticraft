@@ -128,17 +128,12 @@ class Elasticraft extends Plugin
         );
 
         // Register index events
-        // Must use "AFTER", using "BEFORE" led to error when trying to save new entry.
         Event::on(
             Elements::className(),
             Elements::EVENT_AFTER_SAVE_ELEMENT,
             function (ElementEvent $event) {
                 Craft::$app->queue->push(new ElasticJob([
-                    'elements' => array_merge(
-                        [$event->element],
-                        $event->element->getAncestors()->all(),
-                        $event->element->getDescendants()->all()
-                    )
+                    'index' => $this->_getElementWithAncestorsAndDescendants($event->element)
                 ]));
             }
         );
@@ -148,8 +143,11 @@ class Elasticraft extends Plugin
             Elements::EVENT_BEFORE_DELETE_ELEMENT,
             function (ElementEvent $event) {
                 Craft::$app->queue->push(new ElasticJob([
-                    'elements' => [$event->element],
-                    'action' => 'delete'
+                    'index' => array_merge(
+                        $event->element->getAncestors()->all(),
+                        $event->element->getDescendants()->all()
+                    ),
+                    'delete' => [$event->element]
                 ]));
             }
         );
@@ -159,7 +157,7 @@ class Elasticraft extends Plugin
             Structures::EVENT_BEFORE_MOVE_ELEMENT,
             function (MoveElementEvent $event) {
                 Craft::$app->queue->push(new ElasticJob([
-                    'elements' => [$event->element->getParent()]
+                    'index' => $this->_getElementWithAncestorsAndDescendants($event->element)
                 ]));
             }
         );
@@ -169,11 +167,7 @@ class Elasticraft extends Plugin
             Elements::EVENT_AFTER_UPDATE_SLUG_AND_URI,
             function (ElementEvent $event) {
                 Craft::$app->queue->push(new ElasticJob([
-                    'elements' => array_merge(
-                        [$event->element],
-                        $event->element->getAncestors()->all(),
-                        $event->element->getDescendants()->all()
-                        )
+                    'index' => $this->_getElementWithAncestorsAndDescendants($event->element)
                 ]));
             }
         );
@@ -243,6 +237,14 @@ class Elasticraft extends Plugin
             [
                 'settings' => $this->getSettings()
             ]
+        );
+    }
+
+    protected function _getElementWithAncestorsAndDescendants($element) {
+        return array_merge(
+            [$element],
+            $element->getAncestors()->all(),
+            $element->getDescendants()->all()
         );
     }
 }

@@ -81,7 +81,7 @@ class DefaultController extends Controller
     public function actionGetIndex() { return Elasticraft::$plugin->elasticraftService->getIndex(); }
     public function actionDeleteIndex() { return Elasticraft::$plugin->elasticraftService->deleteIndex(); }
     public function actionIndexExists() { return Elasticraft::$plugin->elasticraftService->indexExists(); }
-    public function actionIndexStats() { return Elasticraft::$plugin->elasticraftService->indexStats(); }
+    public function actionGetIndexStats() { return Elasticraft::$plugin->elasticraftService->getIndexStats(); }
     public function actionReindex() { return Elasticraft::$plugin->elasticraftService->indexAllElements(); }
 
     public function actionGetTransformedEntries($limit = 10)

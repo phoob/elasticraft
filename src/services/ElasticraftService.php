@@ -44,26 +44,22 @@ class ElasticraftService extends Component
 
         $this->client =  $this->_getClient();
         $this->indexName = $this->_getIndexName();
-
-        # Since all returns are supposed to be JSON, add this here.
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
     }
 
     // Public Methods
     // =========================================================================
-    /**
-     * Elasticsearch Client
-     *
-     * From any other plugin file, call it like this:
-     *
-     *     Elasticraft::$plugin->elasticraftService->client()
-     *
-     * @return mixed
-     */
+    // From any other plugin file, call them like this:
+    //     Elasticraft::$plugin->elasticraftService->method()
 
-    public function ping()
+    /**
+     * Tries to contact Elasticsearch server.
+     *
+     * @return bool
+     */
+    public function ping(): bool
     {
         $params = [ ];
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         try {
             $response = $this->client->ping($params);
         } catch (\Exception $e) {
@@ -72,9 +68,15 @@ class ElasticraftService extends Component
         return $response;
     }
 
-    public function indexExists()
+    /**
+     * Checks if the index exists on the Elasticsearch server.
+     *
+     * @return bool
+     */
+    public function indexExists(): bool
     {
         $params = [ 'index' => $this->indexName ];
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         try {
             $response = $this->client->indices()->exists($params);
         } catch (\Exception $e) {
@@ -83,7 +85,12 @@ class ElasticraftService extends Component
         return $response;
     }
 
-    public function createIndex()
+    /**
+     * Creates a new index on the Elasticsearch server with a simple mapping.
+     *
+     * @return array
+     */
+    public function createIndex(): array
     {
         $params  = [ 
             'index' => $this->indexName,
@@ -108,6 +115,7 @@ class ElasticraftService extends Component
                 ],
             ],
         ];
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         try {
             $response = $this->client->indices()->create($params);
         } catch (\Exception $e) {
@@ -116,9 +124,15 @@ class ElasticraftService extends Component
         return $response;
     }
 
-    public function getIndex()
+    /**
+     * Get basic info about the index.
+     *
+     * @return array
+     */
+    public function getIndex(): array
     {
-        $params  = [ 'index' => $this->indexName ];
+        $params = ['index' => $this->indexName];
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         try { 
             $response = $this->client->indices()->get($params); 
         } catch (\Exception $e) { 
@@ -127,20 +141,15 @@ class ElasticraftService extends Component
         return $response;
     }
 
-    public function deleteIndex()
+    /**
+     * Get stats from the index.
+     *
+     * @return array
+     */
+    public function getIndexStats(): array
     {
-        $params = [ 'index' => $this->indexName ];
-        try {
-            $response = $this->client->indices()->delete($params);
-        } catch (\Exception $e) {
-            return Json::decode($e->getMessage());
-        }
-        return $response;
-    }
-
-    public function indexStats()
-    {
-        $params = [ 'index' => $this->indexName ];
+        $params = ['index' => $this->indexName];
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         try {
             $response = $this->client->indices()->refresh($params);
             $response = $this->client->indices()->stats($params);
@@ -150,75 +159,145 @@ class ElasticraftService extends Component
         return $response;
     }
 
-    public function indexAllElements()
+    /**
+     * Deletes the index.
+     *
+     * @return array
+     */
+    public function deleteIndex(): array
+    {
+        $params = ['index' => $this->indexName];
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        try {
+            $response = $this->client->indices()->delete($params);
+        } catch (\Exception $e) {
+            return Json::decode($e->getMessage());
+        }
+        return $response;
+    }
+
+    /**
+     * Perform a bulk request to the Elasticsearch server.
+     *
+     * @param array $params Parameters for the bulk request
+     *
+     * @return array
+     */
+    public function bulkProcess(array $params): array
+    {
+        if( !$this->indexExists() ) 
+            $this->createIndex();
+        try {
+            $response = $this->client->bulk($params);
+        } catch (\Exception $e) {
+            return Json::decode($e->getMessage());
+        }
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        return $response;
+    }
+
+    /**
+     * Process many documents with the same action.
+     *
+     * @param array  $docs   Array of ElasticDocuments
+     * @param string $action Name of action
+     *
+     * @return array
+     */
+    public function processDocuments(array $docs, string $action='index'): array
+    {
+        $params = $this->createBulkParams();
+        $responses = [];
+
+        // send in batches of 1000 docs
+        foreach ($docs as $i => $doc) {
+            $params = $this->addDocToBulkParams($params, $doc, $action);
+            if ($i % 1000 == 0) {
+                $responses[] = $this->bulkProcess($params);
+                $params['body'] = [];
+            }
+        }
+
+        // send the rest
+        if (!empty($params['body'])) {
+            $responses[] = $this->bulkProcess($params);
+        }
+
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        return $responses;
+    }
+
+    /**
+     * Process one document.
+     *
+     * @param ElasticDocument $doc    Document to process
+     * @param string          $action Name of action
+     *
+     * @return array
+     */
+    public function processDocument(ElasticDocument $doc, string $action = 'index'): array
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        return $this->processDocuments([$doc], $action);
+    }
+
+    /**
+     * Index all elements.
+     *
+     * For now only indexes entries.
+     *
+     * @return array
+     */
+    public function indexAllElements(): array
     {
         $elements = Entry::find()
             ->all();
         $docs = array_map( function($element) {
             return ElasticDocument::withElement( $element );
         }, $elements );
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         return $this->processDocuments($docs);
     }
 
-    public function processDocument( ElasticDocument $doc, string $action = 'index')
+    // Helper methods
+
+    /**
+     * Create array with params for a bulk request.
+     *
+     * @return array
+     */
+    public function createBulkParams(): array
     {
-        return $this->processDocuments([$doc], $action);
-    }
-
-    // https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/_indexing_documents.html
-    protected function processDocuments(array $docs, string $action='index')
-    {
-        // filter out non-ElasticDocuments
-        $docs = array_filter($docs, function($doc) {
-            return is_a( $doc, 'dfo\elasticraft\models\ElasticDocument' );
-        });
-
-        if( $docs && !$this->indexExists() )
-            $this->createIndex();
-
-        $params = [ 
+        $params = [
             'index' => $this->indexName,
-            'body' => [],
+            'body' => []
         ];
-        $responses = [];
-
-        foreach ($docs as $i => $doc) {
-            $params['body'][] = [
-                $action => [
-                    '_type' => $doc->type,
-                    '_id' => $doc->id,
-                ]
-            ];
-            if ($action == 'index') {
-                $params['body'][] = $doc->body;
-            }
-
-            // send in batches of 1000 docs
-            if ($i % 1000 == 0) {
-                try {
-                    $response = $this->client->bulk($params);
-                } catch (\Exception $e) {
-                    return Json::decode($e->getMessage());
-                }
-                $responses[] = $response;
-
-                $params['body'] = [];
-
-                unset($response);
-            }
-        }
-        // send the rest
-        if (!empty($params['body'])) {
-            try {
-                $response = $this->client->bulk($params);
-            } catch (\Exception $e) {
-                return Json::decode($e->getMessage());
-            }
-            $responses[] = $response;
-        }
-
-        return $responses;
+        return $params;
     }
+
+    /**
+     * Add documents to process to a params array.
+     *
+     * @param array           $params Array created using createBulkParams()
+     * @param ElasticDocument $doc    Document to add
+     * @param string          $action Name of action
+     *
+     * @return array
+     */
+    public function addDocToBulkParams(array $params, ElasticDocument $doc, string $action = 'index'): array
+    {
+        $params['body'][] = [
+            $action => [
+                '_type' => $doc->type,
+                '_id' => $doc->id,
+            ]
+        ];
+        if($action == 'index') {
+            $params['body'][] = $doc->body;
+        }
+        return $params;
+    }
+
 
     // Private methods
     // =========================================================================
