@@ -18,16 +18,18 @@ Elasticraft works on Craft 3.x.
 
 Provides basic functionality to index entries and other craft elements to an elasticsearch server.
 
+The plugin uses the [Elasticesearch PHP Client](https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/index.html). 
+
 ## Configuring Elasticraft
 
-Put the server details in your `.env`:
+Copy `src/config.php` to `craft/config/elasticraft.php` and configure hosts and pagetransformers for the elements you wish to index to Elasticsearch.
+
+If you want, put the server details in your `.env`.:
 
 ```
 ELASTIC_HOSTS=localhost:9200
 ELASTIC_INDEX_NAME=craftdev
 ```
-
-Copy `src/config.php` to `craft/config/elasticraft.php` and configure pagetransformers for the elements you wish to index to Elasticsearch.
 
 ## Using Elasticraft
 
@@ -36,5 +38,6 @@ Elasticraft indexes elements (and their descendants and ancestors) when you save
 ## Elasticraft Roadmap
 
 * Make it more stable and test it. It has not been used in a production environment yet.
+* Please note that the settings page and the widget is not in use currently. All settings are configured in the config file.
 
 Brought to you by [Peter Holme Obrestad](https://dfo.no)
