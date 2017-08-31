@@ -37,6 +37,7 @@ class ElasticraftService extends Component
 
     public $client;
     public $indexName;
+    public $indexOptions;
 
     public function init()
     {
@@ -44,6 +45,7 @@ class ElasticraftService extends Component
 
         $this->client =  $this->_getClient();
         $this->indexName = $this->_getIndexName();
+        $this->indexOptions = $this->_getIndexOptions();
     }
 
     // Public Methods
@@ -94,26 +96,7 @@ class ElasticraftService extends Component
     {
         $params  = [ 
             'index' => $this->indexName,
-            'body' => [
-                'mappings' => [
-                    '_default_' => [
-                        'properties' => [
-                            'elastic.dateCreated' => [
-                                'type' => 'date',
-                                'format' => 'epoch_second'
-                            ],
-                            'elastic.dateUpdated' => [
-                                'type' => 'date',
-                                'format' => 'epoch_second'
-                            ],
-                            'elastic.dateIndexed' => [
-                                'type' => 'date',
-                                'format' => 'epoch_second'
-                            ]
-                        ],
-                    ],
-                ],
-            ],
+            'body' => $this->indexOptions,
         ];
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         try {
@@ -328,6 +311,11 @@ class ElasticraftService extends Component
     private function _getIndexName(): string
     {
         return Elasticraft::$plugin->getSettings()->indexName;
+    }
+
+    private function _getIndexOptions(): array
+    {
+        return Elasticraft::$plugin->getSettings()->indexOptions;
     }
 
 }

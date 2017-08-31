@@ -42,6 +42,7 @@ class Settings extends Model
     public $hosts = [];
     public $indexName = '';
     public $transformers =[];
+    public $indexOptions = [];
 
     // Public Methods
     // =========================================================================
@@ -59,8 +60,8 @@ class Settings extends Model
     public function rules()
     {
         return [
-            [['hosts', 'transformers'], 'array'],
-            ['indexName', 'string'],
+            [['transformers', 'indexOptions'], 'array'],
+            [['hosts', 'indexName'], 'string'],
             [['hosts', 'index'], 'required']
         ];
     }

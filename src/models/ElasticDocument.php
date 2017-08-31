@@ -92,14 +92,6 @@ class ElasticDocument extends Model
             $this->body = $this->transformers[$this->type]->transform($element);
         }
 
-        // add index time to body.
-        $this->body['elastic']['dateIndexed'] = time();
-        // if the element type has properties for when the element is created or updated, add these to body.
-        if( isset( $element->dateCreated ) )
-            $this->body['elastic']['dateCreated'] = (int)$element->dateCreated->format('U');
-        if( isset( $element->dateUpdated ) )
-            $this->body['elastic']['dateUpdated'] = (int)$element->dateUpdated->format('U');
-
     }
 
     /**
