@@ -43,6 +43,7 @@ class Settings extends Model
     public $indexName = '';
     public $transformers =[];
     public $indexOptions = [];
+    public $entryDateIndexedFieldPath = '';
 
     // Public Methods
     // =========================================================================
@@ -61,7 +62,7 @@ class Settings extends Model
     {
         return [
             [['transformers', 'indexOptions'], 'array'],
-            [['hosts', 'indexName'], 'string'],
+            [['hosts', 'indexName', 'entryDateIndexedFieldPath'], 'string'],
             [['hosts', 'index'], 'required']
         ];
     }

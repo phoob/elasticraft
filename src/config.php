@@ -38,8 +38,7 @@ return [
     'mappings' => [
       '_default_' => [
         'properties' => [
-          'dates' => [
-            'type' => 'nested',
+          'date' => [
             'properties' => [
               'indexed' => [
                 'type' => 'date',
@@ -59,6 +58,9 @@ return [
       ],
     ],
   ],
+
+  // Path to date indexed for entries in elasticsearch, use a dot notated string
+  'entryDateIndexedFieldPath' => '_source.date.indexed',
 
   // Mapping of which page transformers should be used for which element types
   'transformers' => [

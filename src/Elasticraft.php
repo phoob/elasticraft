@@ -183,6 +183,21 @@ class Elasticraft extends Plugin
             }
         );
 
+        // Add widget to edit entries
+        \Craft::$app->getView()->hook('cp.entries.edit.right-pane', function(&$context) {
+            /** @var EntryModel $entry **/
+            $entry = $context['entry'];
+
+            if ($dateIndexed = Elasticraft::$plugin->elasticraftService->getDateIndexed($entry)) {
+                return Craft::$app->view->renderTemplate(
+                    'elasticraft/entriesWidget',
+                    [
+                        'dateIndexed' => $dateIndexed
+                    ]
+                );
+            }
+        });
+
 /**
  * Logging in Craft involves using one of the following methods:
  *

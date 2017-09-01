@@ -143,6 +143,37 @@ class ElasticraftService extends Component
     }
 
     /**
+     * Gets the date an entry was indexed
+     *
+     * @param Entry $entry
+     *
+     * @return int
+     */
+    public function getDateIndexed(Entry $entry)
+    {
+        $params = [
+            'index' => $this->indexName,
+            'type' => $entry->section->handle,
+            'id' => $entry->id
+        ];
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        try {
+            $response = $this->client->get($params);
+        } catch (\Exception $e) {
+            return Json::decode($e->getMessage());
+        }
+
+        // Retrieve dateIndexed from $response
+        $pathParts = explode('.', Elasticraft::$plugin->getSettings()->entryDateIndexedFieldPath);
+        $current = $response;
+        foreach ($pathParts as $key) {
+            $current = &$current[$key];
+        }
+
+        return $current;
+    }
+
+    /**
      * Deletes the index.
      *
      * @return array
