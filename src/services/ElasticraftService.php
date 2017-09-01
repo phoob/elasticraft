@@ -149,7 +149,7 @@ class ElasticraftService extends Component
      *
      * @return int
      */
-    public function getDateIndexed(Entry $entry)
+    public function getDocWithEntry(Entry $entry)
     {
         $params = [
             'index' => $this->indexName,
@@ -160,17 +160,10 @@ class ElasticraftService extends Component
         try {
             $response = $this->client->get($params);
         } catch (\Exception $e) {
-            return Json::decode($e->getMessage());
+            return false;
         }
 
-        // Retrieve dateIndexed from $response
-        $pathParts = explode('.', Elasticraft::$plugin->getSettings()->entryDateIndexedFieldPath);
-        $current = $response;
-        foreach ($pathParts as $key) {
-            $current = &$current[$key];
-        }
-
-        return $current;
+        return $response;
     }
 
     /**

@@ -1,6 +1,18 @@
 <div class="pane lightpane meta">
   <div class="data">
-    <h5 class="heading">Dato indeksert</h5>
-    <div class="value">{{ dateIndexed|datetime('short') }}</div>
+    <h4 class="heading">Elasticsearch</h4>
+  </div>
+  <div class="data">
+    {% if doc %}
+      {% if dateIndexed %}
+        <h5 class="heading">{{ "Last indexed"|t('elasticraft') }}</h5>
+        <div class="value">{{ dateIndexed|datetime('short') }}</div>
+      {% else %}
+        {{ "Could not find the last indexed date. Check your config." | t('elasticraft') }}
+      {% endif %}
+    {% else %}
+      {{ "Could not get this entry from Elasticsearch. Try saving it."|t('elasticraft') }}
+    {% endif %}
+  </div>
   </div>
 </div>

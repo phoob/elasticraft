@@ -188,10 +188,25 @@ class Elasticraft extends Plugin
             /** @var EntryModel $entry **/
             $entry = $context['entry'];
 
-            if ($dateIndexed = Elasticraft::$plugin->elasticraftService->getDateIndexed($entry)) {
+            // If entryDateIndexedFieldPath is defined, create widget with info from Elasticsearch 
+            if ($entryDateIndexedFieldPath = Elasticraft::$plugin->getSettings()->entryDateIndexedFieldPath) {
+                $doc = Elasticraft::$plugin->elasticraftService->getDocWithEntry($entry);
+                $dateIndexed = false;
+
+                // Retrieve dateIndexed from $response
+                if (is_array($doc)) {
+                    $pathParts = explode('.', Elasticraft::$plugin->getSettings()->entryDateIndexedFieldPath);
+                    $current = $doc;
+                    foreach ($pathParts as $key) {
+                        $current = &$current[$key];
+                    }
+                    $dateIndexed = $current;
+                }
+
                 return Craft::$app->view->renderTemplate(
                     'elasticraft/entriesWidget',
                     [
+                        'doc' => $doc,
                         'dateIndexed' => $dateIndexed
                     ]
                 );
