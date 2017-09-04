@@ -2,7 +2,7 @@
     "name": "dfo/elasticraft",
     "description": "Elasticsearch plugin for Craft 3",
     "type": "craft-plugin",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "keywords": [
         "craft",
         "cms",
@@ -42,10 +42,10 @@
     "extra": {
         "name": "Elasticraft",
         "handle": "elasticraft",
-        "schemaVersion": "1.0.0",
+        "schemaVersion": "0.2.0",
         "hasCpSettings": true,
         "hasCpSection": false,
-        "changelogUrl": "https://raw.githubusercontent.com/netliferesearch/craft-elastic/master/CHANGELOG.md",
+        "changelogUrl": "https://raw.githubusercontent.com/phoob/elasticraft/master/CHANGELOG.md",
         "components": {
             "elasticraftService": "dfo\\elasticraft\\services\\ElasticraftService"
         },
