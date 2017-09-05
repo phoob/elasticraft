@@ -132,9 +132,11 @@ class Elasticraft extends Plugin
             Elements::className(),
             Elements::EVENT_AFTER_SAVE_ELEMENT,
             function (ElementEvent $event) {
-                Craft::$app->queue->push(new ElasticJob([
-                    'index' => $this->_getElementWithAncestorsAndDescendants($event->element)
-                ]));
+                if($event->element instanceof craft\elements\Entry) {
+                    Craft::$app->queue->push(new ElasticJob([
+                        'index' => $this->_getElementWithAncestorsAndDescendants($event->element)
+                    ]));
+                }
             }
         );
 
