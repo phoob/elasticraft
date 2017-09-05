@@ -132,9 +132,11 @@ class Elasticraft extends Plugin
             Elements::className(),
             Elements::EVENT_AFTER_SAVE_ELEMENT,
             function (ElementEvent $event) {
-                if($event->element instanceof craft\elements\Entry) {
+                // All matrix blocks in elements fires this event individually, 
+                // we do not want to add jobs for every one of these.
+                if( !$event->element instanceof craft\elements\MatrixBlock ) {
                     Craft::$app->queue->push(new ElasticJob([
-                        'index' => $this->_getElementWithAncestorsAndDescendants($event->element)
+                        'index' => $this->_getElementLineage($event->element)
                     ]));
                 }
             }
@@ -159,7 +161,7 @@ class Elasticraft extends Plugin
             Structures::EVENT_BEFORE_MOVE_ELEMENT,
             function (MoveElementEvent $event) {
                 Craft::$app->queue->push(new ElasticJob([
-                    'index' => $this->_getElementWithAncestorsAndDescendants($event->element)
+                    'index' => $this->_getElementLineage($event->element)
                 ]));
             }
         );
@@ -169,7 +171,7 @@ class Elasticraft extends Plugin
             Elements::EVENT_AFTER_UPDATE_SLUG_AND_URI,
             function (ElementEvent $event) {
                 Craft::$app->queue->push(new ElasticJob([
-                    'index' => $this->_getElementWithAncestorsAndDescendants($event->element)
+                    'index' => $this->_getElementLineage($event->element)
                 ]));
             }
         );
@@ -272,7 +274,7 @@ class Elasticraft extends Plugin
         );
     }
 
-    protected function _getElementWithAncestorsAndDescendants($element) {
+    protected function _getElementLineage($element) {
         return array_merge(
             [$element],
             $element->getAncestors()->all(),
