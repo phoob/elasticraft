@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Added
 - Translation files for nb (not complete)
 
+### Fixed
+- Saving entry with matrix fires `EVENT_AFTER_SAVE_ELEMENT` for each matrix block. To not add unnecessary jobs, the check for if the element is of a type that should be indexed must be done before adding job.
+- The widget added in `0.2.1` had an extra `</div>`. Now removed.
+- A little cleanup
+
 ## 0.2.1 - 2017-09-04
 ### Added
 - Widget with the date and time of the last indexing when editing an entry
