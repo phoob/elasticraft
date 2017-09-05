@@ -23,6 +23,6 @@
 return [
     'Elasticraft plugin loaded' => 'Elasticraft-utvidelsen er innlastet',
     'Last indexed' => 'Last indexed',
-    'Date not found. Check your config.' => 'Date not found. Check your config.',
+    'Indexed date not found. Check your config.' => 'Indexed date not found. Check your config.',
     'Save entry to index it.' => 'Save entry to index it.',
 ];
