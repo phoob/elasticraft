@@ -26,11 +26,15 @@ function refreshContent() {
                 if (indexExists) {
                     $('#indexDoesNotExist').addClass('hidden');
                     $('#indexUtilities').removeClass('hidden');
-                    
-                    Craft.postActionRequest('elasticraft/default/get-index-stats', function(indexStats) {
-                        $('#numDocsIndexed').html(indexStats['_all']['primaries']['docs']['count']);
+                    Craft.postActionRequest('elasticraft/default/get-document-count', function(documentCount) {
+                        $('#numDocsIndexed').html(documentCount['total']);
+                        var tableHtml = '';
+                        for (var i =0; i < documentCount['count_by_type'].length - 1; i++) {
+                            tableHtml += '<tr><td><code>' +  documentCount['count_by_type'][i]['key'] + '</code></td><td style="text-align:right;">' + documentCount['count_by_type'][i]['doc_count'] + '</td></tr>';
+                        }
+                        tableHtml += '<tr><th>Total</th><th style="text-align:right;">' + documentCount['total'] + '</th><tr>';
+                        $('#documentCountByType tbody').html(tableHtml);
                     });
-
                 } else {
                     $('#indexUtilities').addClass('hidden');
                     $('#indexDoesNotExist').removeClass('hidden');

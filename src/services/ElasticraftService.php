@@ -108,6 +108,18 @@ class ElasticraftService extends Component
     }
 
     /**
+     * Recreates the index and indexes all elements
+     *
+     * @return array
+     */
+    public function recreateIndex(): array
+    {
+        $this->_deleteIndex();
+        $this->createIndex();
+        return $this->_indexAllElements();
+    }
+
+    /**
      * Get basic info about the index.
      *
      * @return array
@@ -125,25 +137,40 @@ class ElasticraftService extends Component
     }
 
     /**
-     * Get stats from the index.
+     * Get number of documents aggregated by document type
      *
      * @return array
      */
-    public function getIndexStats(): array
+    public function getDocumentCount(): array 
     {
-        $params = ['index' => $this->indexName];
+        $params = [
+            'index' => $this->indexName,
+            'body' => [
+                'size' => 0,
+                'aggregations' => [
+                    'count_by_type' => [
+                        'terms' => [
+                            'field' => '_type'
+                        ]
+                    ]
+                ]
+            ]
+        ];
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         try {
-            $response = $this->client->indices()->refresh($params);
-            $response = $this->client->indices()->stats($params);
+            $response = $this->client->indices()->refresh(['index' => $this->indexName ]);
+            $response = $this->client->search($params);
         } catch (\Exception $e) {
             return Json::decode($e->getMessage());
         }
-        return $response;
+        return [
+            'total' => $response['hits']['total'],
+            'count_by_type' => $response['aggregations']['count_by_type']['buckets'],
+        ];
     }
 
     /**
-     * Gets the date an entry was indexed
+     * Gets a doc from Elasticsearch based on an entry
      *
      * @param Entry $entry
      *
@@ -163,23 +190,6 @@ class ElasticraftService extends Component
             return false;
         }
 
-        return $response;
-    }
-
-    /**
-     * Deletes the index.
-     *
-     * @return array
-     */
-    public function deleteIndex(): array
-    {
-        $params = ['index' => $this->indexName];
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        try {
-            $response = $this->client->indices()->delete($params);
-        } catch (\Exception $e) {
-            return Json::decode($e->getMessage());
-        }
         return $response;
     }
 
@@ -248,23 +258,6 @@ class ElasticraftService extends Component
         return $this->processDocuments([$doc], $action);
     }
 
-    /**
-     * Index all elements.
-     *
-     * For now only indexes entries.
-     *
-     * @return array
-     */
-    public function indexAllElements(): array
-    {
-        $elements = Entry::find()
-            ->all();
-        $docs = array_map( function($element) {
-            return ElasticDocument::withElement( $element );
-        }, $elements );
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        return $this->processDocuments($docs);
-    }
 
     // Helper methods
 
@@ -283,7 +276,7 @@ class ElasticraftService extends Component
     }
 
     /**
-     * Add documents to process to a params array.
+     * Add document to process to a params array.
      *
      * @param array           $params Array created using createBulkParams()
      * @param ElasticDocument $doc    Document to add
@@ -340,5 +333,29 @@ class ElasticraftService extends Component
     {
         return Elasticraft::$plugin->getSettings()->indexOptions;
     }
+
+    private function _deleteIndex(): array
+    {
+        $params = ['index' => $this->indexName];
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        try {
+            $response = $this->client->indices()->delete($params);
+        } catch (\Exception $e) {
+            return Json::decode($e->getMessage());
+        }
+        return $response;
+    }
+
+    private function _indexAllElements(): array
+    {
+        $elements = Entry::find()
+            ->all();
+        $docs = array_map( function($element) {
+            return ElasticDocument::withElement( $element );
+        }, $elements );
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        return $this->processDocuments($docs);
+    }
+
 
 }

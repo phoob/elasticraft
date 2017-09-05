@@ -77,12 +77,11 @@ class DefaultController extends Controller
      * @return mixed
      */
     public function actionPing() { return Elasticraft::$plugin->elasticraftService->ping(); }
+    public function actionRecreateIndex() { return Elasticraft::$plugin->elasticraftService->recreateIndex(); }
     public function actionCreateIndex() { return Elasticraft::$plugin->elasticraftService->createIndex(); }
     public function actionGetIndex() { return Elasticraft::$plugin->elasticraftService->getIndex(); }
-    public function actionDeleteIndex() { return Elasticraft::$plugin->elasticraftService->deleteIndex(); }
+    public function actionGetDocumentCount() { return Elasticraft::$plugin->elasticraftService->getDocumentCount(); }
     public function actionIndexExists() { return Elasticraft::$plugin->elasticraftService->indexExists(); }
-    public function actionGetIndexStats() { return Elasticraft::$plugin->elasticraftService->getIndexStats(); }
-    public function actionReindex() { return Elasticraft::$plugin->elasticraftService->indexAllElements(); }
 
     public function actionGetTransformedEntries($limit = 10)
     {

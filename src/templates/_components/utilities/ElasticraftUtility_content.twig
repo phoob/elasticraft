@@ -29,24 +29,22 @@
     </div>
   </div>
   <div id="indexUtilities" class="hidden">
-    <h2>Index status for <code>{{ indexName }}</code></h2>
-    <p>Number of documents in index: <code id="numDocsIndexed"></code></p>
+    <h2>Index stats</h2>
+    <p>Index name: <code>{{ indexName }}</code></p>
+    <table id="documentCountByType" class="data">
+      <thead><tr><th>Document type</th><th>Count</th></tr></thead>
+      <tbody></tbody>
+    </table>
     <h2>Index utilities</h2>
     <div class="buttons">
       <div class="btngroup">
-        <input type="button" class="btn success" name="elasticraft/default/reindex" value="Reindex all entries" />
+        <input type="button" class="btn success" name="elasticraft/default/recreate-index" value="Recreate index" />
       </div>
       <div class="btngroup">
-        <label>test</label>
-        <input type="button" class="btn" name="elasticraft/default/get-index-stats" value="Index stats" />
         <input type="button" class="btn" name="elasticraft/default/get-index" value="Get index" />
       </div>
-      <div class="btngroup">
-        <input type="button" class="btn error" name="elasticraft/default/delete-index" value="Delete index" />
-      </div>
     </div>
-
-
+    <h2>Debug</h2>
     <div class="buttons">
       <div class="btngroup">
         <input type="button" class="btn" name="elasticraft/default/get-entries" value="Get 10 Craft entries" />
