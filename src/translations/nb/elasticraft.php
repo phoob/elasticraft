@@ -22,7 +22,7 @@
  */
 return [
     'Elasticraft plugin loaded' => 'Elasticraft-utvidelsen er innlastet',
-    'Last indexed' => 'Last indexed',
-    'Date not found. Check your config.' => 'Date not found. Check your config.',
-    'Save entry to index it.' => 'Save entry to index it.',
+    'Last indexed' => 'Sist indeksert',
+    'Date not found. Check your config.' => 'Dato ikke funnet. Sjekk config.',
+    'Save entry to index it.' => 'Lagre innlegg for å indeksere det.',
 ];
