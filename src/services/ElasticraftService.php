@@ -305,7 +305,6 @@ class ElasticraftService extends Component
         return $params;
     }
 
-
     // Private methods
     // =========================================================================
 

@@ -209,7 +209,7 @@ class Elasticraft extends Plugin
                     'elasticraft/entriesWidget',
                     [
                         'doc' => $doc,
-                        'dateIndexed' => $dateIndexed
+                        'dateIndexed' => $dateIndexed,
                     ]
                 );
             }
