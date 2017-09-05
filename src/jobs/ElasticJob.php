@@ -40,20 +40,20 @@ class ElasticJob extends BaseJob
     {
         $params = Elasticraft::$plugin->elasticraftService->createBulkParams();
 
-        foreach ( $this->index as $element ) {
-            if ( $doc = ElasticDocument::withElement( $element ) ) {
-                $params = Elasticraft::$plugin->elasticraftService->addDocToBulkParams($params, $doc, 'index' );
-            }
-        }
+        $elementsByAction = [
+            'index' => $this->index,
+            'delete' => $this->delete
+        ];
 
-        foreach ( $this->delete as $element ) {
-            if ( $doc = ElasticDocument::withElement( $element ) ) {
-                $params = Elasticraft::$plugin->elasticraftService->addDocToBulkParams($params, $doc, 'delete' );
+        foreach ($elementsByAction as $action => $elements) {
+            foreach ($elements as $element) {
+                if ( $doc = ElasticDocument::withElement( $element )) {
+                    $params = Elasticraft::$plugin->elasticraftService->addDocToBulkParams($params, $doc, $action);
+                }
             }
         }
 
         Elasticraft::$plugin->elasticraftService->bulkProcess($params);
-
     }
 
     // Protected Methods
