@@ -64,7 +64,6 @@ return [
 
   // Mapping of which page transformers should be used for which element types
   'transformers' => [
-
-  // 'page' => new PageTransformer(),
+    // 'page' => new PageTransformer(),
   ],
 ];
