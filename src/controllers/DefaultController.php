@@ -80,57 +80,52 @@ class DefaultController extends Controller
      */
     public function actionPing() 
     { 
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        return Elasticraft::$plugin->elasticraftService->ping(); 
+        $result = Elasticraft::$plugin->elasticraftService->ping();
+        return $this->asJson($result); 
     }
 
     public function actionIndexExists() 
     { 
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        return Elasticraft::$plugin->elasticraftService->indexExists();
+        return $this->asJson(Elasticraft::$plugin->elasticraftService->indexExists());
     }
 
     public function actionRecreateIndex() 
     { 
         Elasticraft::$plugin->elasticraftService->deleteIndex();
         Craft::$app->queue->push(new ElasticJob([
-            'elements' => GlobalSet::find(),
-            'description' => 'Indexing all globals',
-        ]));
-        Craft::$app->queue->push(new ElasticJob([
-            'elements' => Entry::find(),
+            'elementType' => Entry::class,
             'description' => 'Indexing all entries',
         ]));
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        return 'Recreating index';
+        Craft::$app->queue->push(new ElasticJob([
+            'elementType' => GlobalSet::class,
+            'description' => 'Indexing all globals',
+        ]));
+        return $this->asJson(true);
     }
 
     public function actionGetDocumentCount() 
     { 
         $response = Elasticraft::$plugin->elasticraftService->getDocumentCount(); 
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        return [
+        return $this->asJson([
             'total' => $response['hits']['total'],
             'count_by_type' => $response['aggregations']['count_by_type']['buckets'],
-        ];
+        ]);
     }
 
     public function actionGetTransformedEntries($limit = 10)
     {
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $entries = $this->actionGetEntries($limit);
         $entries = array_map(function($entry){
             return ElasticDocument::withElement( $entry );
         }, $entries);
-        return $entries;
+        return $this->asJson($entries);
     }
 
     public function actionGetEntries($limit = 10)
     {
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $entries = Entry::find()
             ->all();
-        return $entries;
+        return $this->asJson($entries);
     }
 
 }

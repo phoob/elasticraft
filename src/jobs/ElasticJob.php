@@ -31,6 +31,7 @@ class ElasticJob extends BaseJob
     // =========================================================================
 
     public $elements = [];
+    public $elementType;
     public $action = 'index';
 
     // Public Methods
@@ -38,6 +39,8 @@ class ElasticJob extends BaseJob
 
     public function execute($queue)
     {
+        if (isset($this->elementType))
+            $this->elements = $this->elementType::find();
         $elementCount = count($this->elements);
         for ($i=0; $i < $elementCount; $i++) { 
             // Set progress counter

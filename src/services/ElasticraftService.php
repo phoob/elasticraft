@@ -46,6 +46,8 @@ class ElasticraftService extends Component
         $this->client =  $this->_getClient();
         $this->indexName = $this->_getIndexName();
         $this->indexOptions = $this->_getIndexOptions();
+        //\Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
     }
 
     // Public Methods
@@ -96,7 +98,6 @@ class ElasticraftService extends Component
             'index' => $this->indexName,
             'body' => $this->indexOptions,
         ];
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         try {
             $response = $this->client->indices()->create($params);
         } catch (\Exception $e) {
@@ -113,7 +114,6 @@ class ElasticraftService extends Component
     public function getIndex(): array
     {
         $params = ['index' => $this->indexName];
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         try { 
             $response = $this->client->indices()->get($params); 
         } catch (\Exception $e) { 
@@ -130,7 +130,6 @@ class ElasticraftService extends Component
     public function deleteIndex(): array
     {
         $params = ['index' => $this->indexName];
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         try {
             $response = $this->client->indices()->delete($params);
         } catch (\Exception $e) {
@@ -182,7 +181,6 @@ class ElasticraftService extends Component
             'type' => $entry->section->handle,
             'id' => $entry->id
         ];
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         try {
             $response = $this->client->get($params);
         } catch (\Exception $e) {
@@ -208,7 +206,6 @@ class ElasticraftService extends Component
         } catch (\Exception $e) {
             return Json::decode($e->getMessage());
         }
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         return $response;
     }
 
@@ -239,7 +236,6 @@ class ElasticraftService extends Component
             $responses[] = $this->bulkProcess($params);
         }
 
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         return $responses;
     }
 
@@ -253,7 +249,6 @@ class ElasticraftService extends Component
      */
     public function processDocument(ElasticDocument $doc, string $action = 'index'): array
     {
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         return $this->processDocuments([$doc], $action);
     }
 
@@ -267,7 +262,6 @@ class ElasticraftService extends Component
      */
     public function processElement(craft\base\Element $element, string $action = 'index'): array
     {
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         if ( $doc = ElasticDocument::withElement( $element ) ) {
             return $this->processDocuments([$doc], $action);
         }
