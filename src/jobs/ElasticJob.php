@@ -27,33 +27,27 @@ use craft\elements\GlobalSet;
  */
 class ElasticJob extends BaseJob
 {
-    // Public Properties
+    // Properties
     // =========================================================================
 
-    public $index = [];
-    public $delete = [];
+    public $elements = [];
+    public $action = 'index';
 
     // Public Methods
     // =========================================================================
 
     public function execute($queue)
     {
-        $params = Elasticraft::$plugin->elasticraftService->createBulkParams();
-
-        $elementsByAction = [
-            'index' => $this->index,
-            'delete' => $this->delete
-        ];
-
-        foreach ($elementsByAction as $action => $elements) {
-            foreach ($elements as $element) {
-                if ( $doc = ElasticDocument::withElement( $element )) {
-                    $params = Elasticraft::$plugin->elasticraftService->addDocToBulkParams($params, $doc, $action);
-                }
-            }
+        $elementCount = count($this->elements);
+        for ($i=0; $i < $elementCount; $i++) { 
+            // Set progress counter
+            $this->setProgress($queue, $i / $elementCount);
+            // Process element
+            Elasticraft::$plugin->elasticraftService->processElement(
+                $this->elements[$i], 
+                $this->action
+            );
         }
-
-        Elasticraft::$plugin->elasticraftService->bulkProcess($params);
     }
 
     // Protected Methods
@@ -68,4 +62,5 @@ class ElasticJob extends BaseJob
     {
         return Craft::t('elasticraft', 'Indexing to Elasticsearch');
     }
+
 }

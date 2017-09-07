@@ -11,11 +11,13 @@
 namespace dfo\elasticraft\controllers;
 
 use dfo\elasticraft\Elasticraft;
-use dfo\elasticraft\models\ElasticDocument;
+use dfo\elasticraft\models\ElasticDocument as ElasticDocument;
+use dfo\elasticraft\jobs\ElasticJob as ElasticJob;
 
 use Craft;
 use craft\web\Controller;
 use craft\elements\Entry;
+use craft\elements\GlobalSet;
 use yii\helpers\Json;
 
 /**
@@ -76,12 +78,42 @@ class DefaultController extends Controller
      *
      * @return mixed
      */
-    public function actionPing() { return Elasticraft::$plugin->elasticraftService->ping(); }
-    public function actionRecreateIndex() { return Elasticraft::$plugin->elasticraftService->recreateIndex(); }
-    public function actionCreateIndex() { return Elasticraft::$plugin->elasticraftService->createIndex(); }
-    public function actionGetIndex() { return Elasticraft::$plugin->elasticraftService->getIndex(); }
-    public function actionGetDocumentCount() { return Elasticraft::$plugin->elasticraftService->getDocumentCount(); }
-    public function actionIndexExists() { return Elasticraft::$plugin->elasticraftService->indexExists(); }
+    public function actionPing() 
+    { 
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        return Elasticraft::$plugin->elasticraftService->ping(); 
+    }
+
+    public function actionIndexExists() 
+    { 
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        return Elasticraft::$plugin->elasticraftService->indexExists();
+    }
+
+    public function actionRecreateIndex() 
+    { 
+        Elasticraft::$plugin->elasticraftService->deleteIndex();
+        Craft::$app->queue->push(new ElasticJob([
+            'elements' => GlobalSet::find(),
+            'description' => 'Indexing all globals',
+        ]));
+        Craft::$app->queue->push(new ElasticJob([
+            'elements' => Entry::find(),
+            'description' => 'Indexing all entries',
+        ]));
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        return 'Recreating index';
+    }
+
+    public function actionGetDocumentCount() 
+    { 
+        $response = Elasticraft::$plugin->elasticraftService->getDocumentCount(); 
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        return [
+            'total' => $response['hits']['total'],
+            'count_by_type' => $response['aggregations']['count_by_type']['buckets'],
+        ];
+    }
 
     public function actionGetTransformedEntries($limit = 10)
     {

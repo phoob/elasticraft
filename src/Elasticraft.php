@@ -136,7 +136,8 @@ class Elasticraft extends Plugin
                 // we do not want to add jobs for every one of these.
                 if( !$event->element instanceof craft\elements\MatrixBlock ) {
                     Craft::$app->queue->push(new ElasticJob([
-                        'index' => $this->_getElementLineage($event->element)
+                        'elements' => $this->_getElementLineage($event->element),
+                        'description' => 'Indexing element'
                     ]));
                 }
             }
@@ -147,11 +148,16 @@ class Elasticraft extends Plugin
             Elements::EVENT_BEFORE_DELETE_ELEMENT,
             function (ElementEvent $event) {
                 Craft::$app->queue->push(new ElasticJob([
-                    'index' => array_merge(
+                    'elements' => [$event->element],
+                    'action' => 'delete',
+                    'description' => 'Deleting element from Elasticsearch'
+                ]));
+                Craft::$app->queue->push(new ElasticJob([
+                    'elements' => array_merge(
                         $event->element->getAncestors()->all(),
                         $event->element->getDescendants()->all()
                     ),
-                    'delete' => [$event->element]
+                    'description' => 'Reindexing ancestors and descendands of deleted element',
                 ]));
             }
         );
@@ -161,7 +167,11 @@ class Elasticraft extends Plugin
             Structures::EVENT_BEFORE_MOVE_ELEMENT,
             function (MoveElementEvent $event) {
                 Craft::$app->queue->push(new ElasticJob([
-                    'index' => $this->_getElementLineage($event->element)
+                    'elements' => array_merge(
+                        $event->element->getAncestors()->all(),
+                        $event->element->getDescendants()->all()
+                    ),
+                    'description' => 'Reindexing previous ancestors and descendands of moved element',
                 ]));
             }
         );
@@ -171,7 +181,8 @@ class Elasticraft extends Plugin
             Elements::EVENT_AFTER_UPDATE_SLUG_AND_URI,
             function (ElementEvent $event) {
                 Craft::$app->queue->push(new ElasticJob([
-                    'index' => $this->_getElementLineage($event->element)
+                    'elements' => $this->_getElementLineage($event->element),
+                    'description' => 'Reindexing elements'
                 ]));
             }
         );

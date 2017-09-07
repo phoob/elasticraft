@@ -23,26 +23,20 @@
   </div>
   <div id="indexDoesNotExist" class="hidden">
     <h2>Index does not exist</h2>
-    <p>The index named <code>{{ indexName }}</code> does not exist.</p>
+    <p>Could not find the index named <code>{{ indexName }}</code> on the Elasticsearch server.</p>
     <div class="buttons">
-      <input type="button" class="btn" name="elasticraft/default/create-index" value="Create index" />
+      <input type="button" class="btn" name="elasticraft/default/recreate-index" value="Create index" />
     </div>
   </div>
   <div id="indexUtilities" class="hidden">
-    <h2>Index stats</h2>
-    <p>Index name: <code>{{ indexName }}</code></p>
+    <h2>Index name: <code>{{ indexName }}</code></h2>
     <table id="documentCountByType" class="data">
       <thead><tr><th>Document type</th><th>Count</th></tr></thead>
       <tbody></tbody>
     </table>
     <h2>Index utilities</h2>
     <div class="buttons">
-      <div class="btngroup">
-        <input type="button" class="btn success" name="elasticraft/default/recreate-index" value="Recreate index" />
-      </div>
-      <div class="btngroup">
-        <input type="button" class="btn" name="elasticraft/default/get-index" value="Get index" />
-      </div>
+      <input type="button" class="btn success" name="elasticraft/default/recreate-index" value="Recreate index" />
     </div>
     <h2>Debug</h2>
     <div class="buttons">
@@ -51,7 +45,6 @@
         <input type="button" class="btn" name="elasticraft/default/get-transformed-entries" value="Get 10 transformed entries" />
       </div>
     </div>
-    <h2>Result</h2>
     <pre id="elasticraft-result"></pre>
   </div>
 </form>

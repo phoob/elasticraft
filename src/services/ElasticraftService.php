@@ -61,7 +61,6 @@ class ElasticraftService extends Component
     public function ping(): bool
     {
         $params = [ ];
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         try {
             $response = $this->client->ping($params);
         } catch (\Exception $e) {
@@ -78,7 +77,6 @@ class ElasticraftService extends Component
     public function indexExists(): bool
     {
         $params = [ 'index' => $this->indexName ];
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         try {
             $response = $this->client->indices()->exists($params);
         } catch (\Exception $e) {
@@ -108,18 +106,6 @@ class ElasticraftService extends Component
     }
 
     /**
-     * Recreates the index and indexes all elements
-     *
-     * @return array
-     */
-    public function recreateIndex(): array
-    {
-        $this->_deleteIndex();
-        $this->createIndex();
-        return $this->_indexAllElements();
-    }
-
-    /**
      * Get basic info about the index.
      *
      * @return array
@@ -132,6 +118,23 @@ class ElasticraftService extends Component
             $response = $this->client->indices()->get($params); 
         } catch (\Exception $e) { 
             return Json::decode($e->getMessage()); 
+        }
+        return $response;
+    }
+
+    /**
+     * Delete index.
+     *
+     * @return array
+     */
+    public function deleteIndex(): array
+    {
+        $params = ['index' => $this->indexName];
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        try {
+            $response = $this->client->indices()->delete($params);
+        } catch (\Exception $e) {
+            return Json::decode($e->getMessage());
         }
         return $response;
     }
@@ -156,17 +159,13 @@ class ElasticraftService extends Component
                 ]
             ]
         ];
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         try {
             $response = $this->client->indices()->refresh(['index' => $this->indexName ]);
             $response = $this->client->search($params);
         } catch (\Exception $e) {
             return Json::decode($e->getMessage());
         }
-        return [
-            'total' => $response['hits']['total'],
-            'count_by_type' => $response['aggregations']['count_by_type']['buckets'],
-        ];
+        return $response;
     }
 
     /**
@@ -258,6 +257,21 @@ class ElasticraftService extends Component
         return $this->processDocuments([$doc], $action);
     }
 
+    /**
+     * Process one document.
+     *
+     * @param Element $doc    Document to process
+     * @param string          $action Name of action
+     *
+     * @return array
+     */
+    public function processElement(craft\base\Element $element, string $action = 'index'): array
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        if ( $doc = ElasticDocument::withElement( $element ) ) {
+            return $this->processDocuments([$doc], $action);
+        }
+    }
 
     // Helper methods
 
@@ -333,29 +347,5 @@ class ElasticraftService extends Component
     {
         return Elasticraft::$plugin->getSettings()->indexOptions;
     }
-
-    private function _deleteIndex(): array
-    {
-        $params = ['index' => $this->indexName];
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        try {
-            $response = $this->client->indices()->delete($params);
-        } catch (\Exception $e) {
-            return Json::decode($e->getMessage());
-        }
-        return $response;
-    }
-
-    private function _indexAllElements(): array
-    {
-        $elements = Entry::find()
-            ->all();
-        $docs = array_map( function($element) {
-            return ElasticDocument::withElement( $element );
-        }, $elements );
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        return $this->processDocuments($docs);
-    }
-
 
 }
