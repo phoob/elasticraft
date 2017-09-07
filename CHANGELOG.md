@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## Unreleased
 
+## 0.2.3 - 2017-09-07
+### Fixed
+- Recreate index now works better and indexes globals as well
+- Code cleanup
+
 ## 0.2.2 - 2017-09-05
 ### Added
 - Translation files for nb (not complete)
