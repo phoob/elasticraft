@@ -12,6 +12,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Removed
 - Removed widget for now.
 
+### Fixed
+- Only show last indexed date widget if entry has an associated pagetransformer.
+
 ## 0.2.3 - 2017-09-07
 ### Fixed
 - Recreate index now works better and indexes globals as well

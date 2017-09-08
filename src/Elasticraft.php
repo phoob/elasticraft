@@ -208,9 +208,12 @@ class Elasticraft extends Plugin
             /** @var EntryModel $entry **/
             $entry = $context['entry'];
 
-            // If entryDateIndexedFieldPath is defined, create widget with info from Elasticsearch 
-            if ($entryDateIndexedFieldPath = Elasticraft::$plugin->getSettings()->entryDateIndexedFieldPath) {
-                $doc = Elasticraft::$plugin->elasticraftService->getDocWithEntry($entry);
+            // If entry has transformer and entryDateIndexedFieldPath is defined, create widget with info from Elasticsearch 
+            if (
+                ElasticDocument::elementHasTransformer($entry)
+                && $entryDateIndexedFieldPath = Elasticraft::$plugin->getSettings()->entryDateIndexedFieldPath
+            ) {
+                $doc = Elasticraft::$plugin->elasticraftService->getDocWithElement($entry);
                 $dateIndexed = false;
 
                 // Retrieve dateIndexed from $response
@@ -269,6 +272,7 @@ class Elasticraft extends Plugin
      *
      * @return \craft\base\Model|null
      */
+
     protected function createSettingsModel()
     {
         return new Settings();
