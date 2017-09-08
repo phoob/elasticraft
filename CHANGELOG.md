@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+### Changed
+- Breaking: document type is now set to `element` for all elements. To access section handles – for entries – or handles – for globals, use ``_source.type.keyword` instead of `_type`.
+
 ### Added
 - Console command for reindexing to Elasticsearch.
 - Example page transformers and short description in README.

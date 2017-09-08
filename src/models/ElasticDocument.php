@@ -31,8 +31,7 @@ use craft\base\Element;
 class ElasticDocument extends Model
 {
 
-    const UNKNOWN_TYPE = 'unknown';
-    const GLOBALSET_PREFIX = 'global-';
+    const ELEMENT_DOCUMENT_TYPE = 'element';
 
     // Public Properties
     // =========================================================================
@@ -42,11 +41,14 @@ class ElasticDocument extends Model
      *
      * @var string
      */
-    public $id;
     public $type;
+    public $id;
     public $body = [];
 
     protected $transformers = [];
+
+    // Public Methods
+    // =========================================================================
 
     public function init()
     {
@@ -57,41 +59,24 @@ class ElasticDocument extends Model
             ->getSettings()
             ->transformers;
     }
-    // Public Methods
-    // =========================================================================
 
     public static function withElement( craft\base\Element $element )
     {
         $instance = new self();
-        $instance->loadByElement( $element );
+        $instance->_loadByElement( $element );
         return $instance;
     }
 
-    protected function loadByElement( craft\base\Element $element )
+    // Helper methods
+    // =========================================================================
+
+    public static function elementHasTransformer( craft\base\Element $element): bool
     {
-        // set type and id based on the type of element
-        switch ( true ) {
-            case $element instanceof craft\elements\Entry:
-                $this->type = $element->section->handle;
-                $this->id = $element->id;
-                break;
-            
-            case $element instanceof craft\elements\GlobalSet:
-                $this->type = self::GLOBALSET_PREFIX . $element->handle;
-                $this->id = $element->handle;
-                break;
-
-            // to do: add more element types.
-
-            default:
-                return false;
-        }
-
-        // set document body if one is defined in the config.
-        if( isset( $this->transformers[$this->type] ) ) {
-            $this->body = $this->transformers[$this->type]->transform($element);
-        }
-
+        $instance = new self();
+        $transformer = $instance->_getTransformerForElement( $element );
+        if( isset( $instance->transformers[$transformer] ) ) 
+            return true;
+        return false;
     }
 
     /**
@@ -112,4 +97,36 @@ class ElasticDocument extends Model
             [['id', 'type'], 'required'],
         ];
     }
+
+    // Private Methods
+    // =========================================================================
+
+    private function _loadByElement( craft\base\Element $element )
+    {
+        $this->type = self::ELEMENT_DOCUMENT_TYPE;
+        $this->id = $element->id;
+
+        $transformer = $this->_getTransformerForElement( $element );
+
+        // set document body if one is defined in the config.
+        if( isset( $this->transformers[$transformer] ) ) 
+            $this->body = $this->transformers[$transformer]->transform($element);
+
+        // set body['type'] if it is not alreade defined in transformer
+        if (!isset($this->body['type']))
+            $this->body['type'] = $transformer;
+    }
+
+    private function _getTransformerForElement( craft\base\Element $element ): string
+    {
+        switch (get_class($element)) {
+            case 'craft\elements\Entry':
+                return $element->section->handle;
+            case 'craft\elements\GlobalSet':
+                return $element->handle;
+            default:
+                return 'default';
+        }
+    }
+
 }

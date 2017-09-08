@@ -17,7 +17,7 @@ use yii\helpers\Json;
 
 use Craft;
 use craft\base\Component;
-use craft\elements\Entry;
+use craft\base\Element;
 
 /**
  * ElasticraftService Service
@@ -150,7 +150,7 @@ class ElasticraftService extends Component
                 'aggregations' => [
                     'count_by_type' => [
                         'terms' => [
-                            'field' => '_type'
+                            'field' => 'type.keyword'
                         ]
                     ]
                 ]
@@ -172,12 +172,12 @@ class ElasticraftService extends Component
      *
      * @return int
      */
-    public function getDocWithEntry(Entry $entry)
+    public function getDocWithElement(Element $element)
     {
         $params = [
             'index' => $this->indexName,
-            'type' => $entry->section->handle,
-            'id' => $entry->id
+            'type' => ElasticDocument::ELEMENT_DOCUMENT_TYPE,
+            'id' => $element->id
         ];
         try {
             $response = $this->client->get($params);
@@ -222,17 +222,37 @@ class ElasticraftService extends Component
      * Process one document.
      *
      * @param ElasticDocument $doc    Document to process
-     * @param string          $action Name of action
+     * @param string          $action Name of action ('index' or 'delete')
      *
      * @return array
      */
     public function processDocument(ElasticDocument $doc, string $action = 'index'): array
     {
-        return $this->processDocuments([$doc], $action);
+        $params = [
+            'index' => $this->indexName,
+            'type' => $doc->type,
+            'id' => $doc->id,
+            'body' => $doc->body
+        ];
+        try {
+            switch ($action) {
+                case 'index':
+                    $response = $this->client->index($params);
+                    break;
+                case 'delete':
+                    $response = $this->client->delete($params);
+                default:
+                    throw new Exception("Action must be either 'index' or 'delete'.", 1);
+                    break;
+            }
+        } catch (\Exception $e) {
+            return Json::decode($e->getMessage());
+        }
+        return $response;
     }
 
     /**
-     * Process one document.
+     * Process one element.
      *
      * @param Element $doc    Document to process
      * @param string          $action Name of action
@@ -242,7 +262,7 @@ class ElasticraftService extends Component
     public function processElement(craft\base\Element $element, string $action = 'index'): array
     {
         if ( $doc = ElasticDocument::withElement( $element ) ) {
-            return $this->processDocuments([$doc], $action);
+            return $this->processDocument($doc, $action);
         }
     }
 
