@@ -119,6 +119,10 @@ class Elasticraft extends Plugin
         );
 
         // Register our widgets
+        /*
+         * Not in use at the moment
+         */
+        /*
         Event::on(
             Dashboard::className(),
             Dashboard::EVENT_REGISTER_WIDGET_TYPES,

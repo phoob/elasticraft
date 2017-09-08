@@ -9,6 +9,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Console command for reindexing to Elasticsearch.
 - Example page transformers and short description in README.
 
+### Removed
+- Removed widget for now.
+
 ## 0.2.3 - 2017-09-07
 ### Fixed
 - Recreate index now works better and indexes globals as well
