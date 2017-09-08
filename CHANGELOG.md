@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Removed
 - Removed widget for now.
+- Removed debug tools from utility page.
 
 ### Fixed
 - Only show last indexed date widget if entry has an associated pagetransformer.
