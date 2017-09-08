@@ -130,6 +130,7 @@ class Elasticraft extends Plugin
                 $event->types[] = ElasticraftWidgetWidget::class;
             }
         );
+        */
 
         // Register index events
         Event::on(
