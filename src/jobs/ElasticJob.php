@@ -42,11 +42,18 @@ class ElasticJob extends BaseJob
         if (isset($this->elementType))
             $this->elements = $this->elementType::find();
         $elementCount = count($this->elements);
+
+        $service = Elasticraft::$plugin->elasticraftService;
+
+        // Create index if it does not exist yet
+        if (!$service->indexExists() )
+            $service->createIndex();
+
         for ($i=0; $i < $elementCount; $i++) { 
             // Set progress counter
             $this->setProgress($queue, $i / $elementCount);
             // Process element
-            Elasticraft::$plugin->elasticraftService->processElement(
+            $service->processElement(
                 $this->elements[$i], 
                 $this->action
             );

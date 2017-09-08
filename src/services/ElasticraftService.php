@@ -46,8 +46,6 @@ class ElasticraftService extends Component
         $this->client =  $this->_getClient();
         $this->indexName = $this->_getIndexName();
         $this->indexOptions = $this->_getIndexOptions();
-        //\Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-
     }
 
     // Public Methods
@@ -191,25 +189,6 @@ class ElasticraftService extends Component
     }
 
     /**
-     * Perform a bulk request to the Elasticsearch server.
-     *
-     * @param array $params Parameters for the bulk request
-     *
-     * @return array
-     */
-    public function bulkProcess(array $params): array
-    {
-        if( !$this->indexExists() ) 
-            $this->createIndex();
-        try {
-            $response = $this->client->bulk($params);
-        } catch (\Exception $e) {
-            return Json::decode($e->getMessage());
-        }
-        return $response;
-    }
-
-    /**
      * Process many documents with the same action.
      *
      * @param array  $docs   Array of ElasticDocuments
@@ -219,21 +198,21 @@ class ElasticraftService extends Component
      */
     public function processDocuments(array $docs, string $action='index'): array
     {
-        $params = $this->createBulkParams();
+        $params = $this->_createBulkParams();
         $responses = [];
 
         // send in batches of 1000 docs
         foreach ($docs as $i => $doc) {
             $params = $this->addDocToBulkParams($params, $doc, $action);
             if ($i % 1000 == 0) {
-                $responses[] = $this->bulkProcess($params);
+                $responses[] = $this->_bulkProcess($params);
                 $params['body'] = [];
             }
         }
 
         // send the rest
         if (!empty($params['body'])) {
-            $responses[] = $this->bulkProcess($params);
+            $responses[] = $this->_bulkProcess($params);
         }
 
         return $responses;
@@ -265,45 +244,6 @@ class ElasticraftService extends Component
         if ( $doc = ElasticDocument::withElement( $element ) ) {
             return $this->processDocuments([$doc], $action);
         }
-    }
-
-    // Helper methods
-
-    /**
-     * Create array with params for a bulk request.
-     *
-     * @return array
-     */
-    public function createBulkParams(): array
-    {
-        $params = [
-            'index' => $this->indexName,
-            'body' => []
-        ];
-        return $params;
-    }
-
-    /**
-     * Add document to process to a params array.
-     *
-     * @param array           $params Array created using createBulkParams()
-     * @param ElasticDocument $doc    Document to add
-     * @param string          $action Name of action
-     *
-     * @return array
-     */
-    public function addDocToBulkParams(array $params, ElasticDocument $doc, string $action = 'index'): array
-    {
-        $params['body'][] = [
-            $action => [
-                '_type' => $doc->type,
-                '_id' => $doc->id,
-            ]
-        ];
-        if($action == 'index') {
-            $params['body'][] = $doc->body;
-        }
-        return $params;
     }
 
     // Private methods
@@ -341,5 +281,62 @@ class ElasticraftService extends Component
     {
         return Elasticraft::$plugin->getSettings()->indexOptions;
     }
+
+    /**
+     * Create array with params for a bulk request.
+     *
+     * @return array
+     */
+    private function _createBulkParams(): array
+    {
+        $params = [
+            'index' => $this->indexName,
+            'body' => []
+        ];
+        return $params;
+    }
+
+    /**
+     * Add document to process to a params array.
+     *
+     * @param array           $params Array created using createBulkParams()
+     * @param ElasticDocument $doc    Document to add
+     * @param string          $action Name of action
+     *
+     * @return array
+     */
+    private function _addDocToBulkParams(array $params, ElasticDocument $doc, string $action = 'index'): array
+    {
+        $params['body'][] = [
+            $action => [
+                '_type' => $doc->type,
+                '_id' => $doc->id,
+            ]
+        ];
+        if($action == 'index') {
+            $params['body'][] = $doc->body;
+        }
+        return $params;
+    }
+
+    /**
+     * Perform a bulk request to the Elasticsearch server.
+     *
+     * @param array $params Parameters for the bulk request
+     *
+     * @return array
+     */
+    private function _bulkProcess(array $params): array
+    {
+        if( !$this->indexExists() ) 
+            $this->createIndex();
+        try {
+            $response = $this->client->bulk($params);
+        } catch (\Exception $e) {
+            return Json::decode($e->getMessage());
+        }
+        return $response;
+    }
+
 
 }

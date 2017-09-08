@@ -39,7 +39,7 @@ class Settings extends Model
      *
      * @var string
      */
-    public $hosts = [];
+    public $hosts = '';
     public $indexName = '';
     public $transformers =[];
     public $indexOptions = [];

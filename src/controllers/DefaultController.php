@@ -65,9 +65,9 @@ class DefaultController extends Controller
      */
     public function actionIndex()
     {
-        $result = 'Welcome to the DefaultController actionIndex() method';
+        $result = 'Welcome to Elasticraft.';
 
-        return $result;
+        return $this->asJson($result);
     }
 
     /**
@@ -86,7 +86,8 @@ class DefaultController extends Controller
 
     public function actionIndexExists() 
     { 
-        return $this->asJson(Elasticraft::$plugin->elasticraftService->indexExists());
+        $result = Elasticraft::$plugin->elasticraftService->indexExists();
+        return $this->asJson($result);
     }
 
     public function actionRecreateIndex() 
