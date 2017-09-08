@@ -56,17 +56,17 @@ buttons.on("click", function(ev) {
 
     var $this = $(this);
     var action = $this.attr('name');
-    var spinner = $('#spinner');
-    var results = $('#elasticraft-result');
+    // var spinner = $('#spinner');
+    // var results = $('#elasticraft-result');
 
     $this.addClass('active');
-    results.html('<div id="spinner" class="spinner"></div>');
+    // results.html('<div id="spinner" class="spinner"></div>');
 
     Craft.postActionRequest(action, function(response) {
         $this.removeClass('active');
-        spinner.addClass('hidden');
+        // spinner.addClass('hidden');
         executing = false;
-        results.html( syntaxHighlight(JSON.stringify(response, null, 4)) );
+        // results.html(syntaxHighlight(JSON.stringify(response, null, 4)) );
         Craft.cp.runQueue();
         refreshContent();
     });

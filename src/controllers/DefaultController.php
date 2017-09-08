@@ -112,20 +112,4 @@ class DefaultController extends Controller
         ]);
     }
 
-    public function actionGetTransformedEntries($limit = 10)
-    {
-        $entries = $this->actionGetEntries($limit);
-        $entries = array_map(function($entry){
-            return ElasticDocument::withElement( $entry );
-        }, $entries);
-        return $this->asJson($entries);
-    }
-
-    public function actionGetEntries($limit = 10)
-    {
-        $entries = Entry::find()
-            ->all();
-        return $this->asJson($entries);
-    }
-
 }
