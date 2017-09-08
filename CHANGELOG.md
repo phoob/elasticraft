@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Added
 - Console command for reindexing to Elasticsearch.
 - Example page transformers and short description in README.
+- Add stuff to settings page.
 
 ### Removed
 - Removed widget for now.

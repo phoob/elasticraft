@@ -16,10 +16,34 @@
 
 {% do view.registerAssetBundle("dfo\\elasticraft\\assetbundles\\elasticraft\\ElasticraftAsset") %}
 
+<h2>Connection settings</h2>
+
 {{ forms.textField({
-    label: 'Some Field',
-    instructions: 'Enter some setting here.',
-    id: 'someAttribute',
-    name: 'someAttribute',
-    value: settings['someAttribute']})
+    label: 'Elastic host',
+    instructions: 'Enter Elasticsearch hosts here. Comma separated',
+    id: 'elasticHost',
+    name: 'elasticHost',
+    value: settings['hosts']})
 }}
+
+{{ forms.textField({
+    label: 'Elastic index name',
+    instructions: 'Enter Elasticsearch index name here',
+    id: 'elasticIndex',
+    name: 'elasticIndex',
+    value: settings['indexName']})
+}}
+
+<h2>Settings for the widget that is shown in the edit entry page</h2>
+
+{{ forms.textField({
+    label: 'Entry date indexed field path',
+    instructions: 'Path to date indexed for entries in elasticsearch, use a dot notated string',
+    id: 'elasticIndex',
+    name: 'elasticIndex',
+    value: settings['entryDateIndexedFieldPath']})
+}}
+
+<h2>Other settings</h2>
+
+<p>You should also specify <code>indexOptions</code> and <code>transformers</code>. Copy <code>config.php</code> from the plugin directory to <code>elasticraft.php</code> in the Craft main <code>config</code> directory and fill out as necessary.</p>
