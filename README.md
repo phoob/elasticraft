@@ -24,6 +24,8 @@ The plugin uses the [Elasticesearch PHP Client](https://www.elastic.co/guide/en/
 
 Copy `src/config.php` to `craft/config/elasticraft.php` and configure hosts and pagetransformers for the elements you wish to index to Elasticsearch.
 
+Pagetransformers should inherit `League\Fractal\TransformerAbstract` – see examples in `./transformers/`.
+
 If you want, put the server details in your `.env`.:
 
 ```
