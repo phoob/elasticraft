@@ -210,7 +210,8 @@ class Elasticraft extends Plugin
 
             // If entry has transformer and entryDateIndexedFieldPath is defined, create widget with info from Elasticsearch 
             if (
-                ElasticDocument::elementHasTransformer($entry)
+                Elasticraft::$plugin->elasticraftService->ping()
+                && ElasticDocument::elementHasTransformer($entry)
                 && $entryDateIndexedFieldPath = Elasticraft::$plugin->getSettings()->entryDateIndexedFieldPath
             ) {
                 $doc = Elasticraft::$plugin->elasticraftService->getDocWithElement($entry);

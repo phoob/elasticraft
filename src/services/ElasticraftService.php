@@ -287,8 +287,6 @@ class ElasticraftService extends Component
             explode( ',', Elasticraft::$plugin->getSettings()->hosts ), 
             function($uri){ return filter_var($uri, FILTER_VALIDATE_URL); }
         );
-        if (empty($uris))
-            return ['http://localhost:9200'];
         return $uris;
     }
 

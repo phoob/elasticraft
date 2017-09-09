@@ -26,12 +26,11 @@
 # require_once __DIR__ . '/../src/transformers/page.php';
 
 return [
-
-  // Comma separated list of Elasticsearch hosts, eg. "http://localhost:9200,https://user:pass@elastic.domain.com:443"
-  'hosts' => getenv('ELASTIC_HOSTS'),
+  // Comma separated list of Elasticsearch hosts, eg. "http://localhost:9200,https://user:pass@elastic.domain.com:443". Must be fully qualified urls.
+  'hosts' => getenv('ELASTIC_HOSTS') ?: 'http://localhost:9200',
 
   // The name of the Elasticsearch index to be used
-  'indexName' => getenv('ELASTIC_INDEX_NAME'),
+  'indexName' => getenv('ELASTIC_INDEX_NAME') ?: 'craft',
 
   // IndexOptions to pass to Elasticsearch when creating index
   'indexOptions' => [
