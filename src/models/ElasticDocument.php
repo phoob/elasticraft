@@ -60,7 +60,7 @@ class ElasticDocument extends Model
             ->transformers;
     }
 
-    public static function withElement( craft\base\Element $element )
+    public static function withElement( Element $element )
     {
         $instance = new self();
         $instance->_loadByElement( $element );
@@ -70,7 +70,7 @@ class ElasticDocument extends Model
     // Helper methods
     // =========================================================================
 
-    public static function elementHasTransformer( craft\base\Element $element): bool
+    public static function elementHasTransformer( Element $element): bool
     {
         $instance = new self();
         $transformer = $instance->_getTransformerForElement( $element );
@@ -93,7 +93,6 @@ class ElasticDocument extends Model
     {
         return [
             [['id', 'type'], 'string'],
-            [['body'], 'array'],
             [['id', 'type'], 'required'],
         ];
     }
@@ -101,7 +100,7 @@ class ElasticDocument extends Model
     // Private Methods
     // =========================================================================
 
-    private function _loadByElement( craft\base\Element $element )
+    private function _loadByElement( Element $element )
     {
         $this->type = self::ELEMENT_DOCUMENT_TYPE;
         $this->id = $element->id;
@@ -117,7 +116,7 @@ class ElasticDocument extends Model
             $this->body['type'] = $transformer;
     }
 
-    private function _getTransformerForElement( craft\base\Element $element ): string
+    private function _getTransformerForElement( Element $element ): string
     {
         switch (get_class($element)) {
             case 'craft\elements\Entry':
