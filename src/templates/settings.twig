@@ -44,6 +44,18 @@
     value: settings['entryDateIndexedFieldPath']})
 }}
 
+{# Apparently settings not shown here must be emptied out #}
+{{ forms.hidden({
+    id: 'transformers',
+    name: 'transformers',
+    value: null})
+}}
+{{ forms.hidden({
+    id: 'indexOptions',
+    name: 'indexOptions',
+    value: null})
+}}
+
 <h2>Other settings</h2>
 
 <p>You should also specify <code>indexOptions</code> and <code>transformers</code>. Copy <code>config.php</code> from the plugin directory to <code>elasticraft.php</code> in the Craft main <code>config</code> directory and fill out as necessary.</p>
