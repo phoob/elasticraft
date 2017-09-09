@@ -93,7 +93,8 @@ class Elasticraft extends Plugin
             UrlManager::className(),
             UrlManager::EVENT_REGISTER_SITE_URL_RULES,
             function (RegisterUrlRulesEvent $event) {
-                $event->rules['siteActionTrigger1'] = 'elasticraft/default';
+                // Not needed now.
+                // $event->rules['siteActionTrigger1'] = 'elasticraft/default';
             }
         );
 
@@ -102,10 +103,8 @@ class Elasticraft extends Plugin
             UrlManager::className(),
             UrlManager::EVENT_REGISTER_CP_URL_RULES,
             function (RegisterUrlRulesEvent $event) {
-                $event->rules['cpActionTriggerCreateIndex'] = 'elasticraft/default/create-index';
-                $event->rules['cpActionTriggerGetIndex'] = 'elasticraft/default/get-index';
-                $event->rules['cpActionTriggerDeleteIndex'] = 'elasticraft/default/delete-index';
-                $event->rules['cpActionTriggerIndexExists'] = 'elasticraft/default/index-exists';
+                // Not needed now.
+                // $event->rules['elastic/ping'] = 'elasticraft/default/ping';
             }
         );
 
@@ -119,18 +118,14 @@ class Elasticraft extends Plugin
         );
 
         // Register our widgets
-        /*
-         * Not in use at the moment
-         */
-        /*
         Event::on(
             Dashboard::className(),
             Dashboard::EVENT_REGISTER_WIDGET_TYPES,
             function (RegisterComponentTypesEvent $event) {
-                $event->types[] = ElasticraftWidgetWidget::class;
+                // Not in use now.
+                // $event->types[] = ElasticraftWidgetWidget::class;
             }
         );
-        */
 
         // Register index events
         Event::on(
