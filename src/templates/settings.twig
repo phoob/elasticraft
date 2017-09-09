@@ -20,17 +20,17 @@
 
 {{ forms.textField({
     label: 'Elastic host',
-    instructions: 'Enter Elasticsearch hosts here. Comma separated',
-    id: 'elasticHost',
-    name: 'elasticHost',
+    instructions: 'Enter Elasticsearch hosts here. Comma separated. Must be fully qualified urls.',
+    id: 'hosts',
+    name: 'hosts',
     value: settings['hosts']})
 }}
 
 {{ forms.textField({
     label: 'Elastic index name',
     instructions: 'Enter Elasticsearch index name here',
-    id: 'elasticIndex',
-    name: 'elasticIndex',
+    id: 'indexName',
+    name: 'indexName',
     value: settings['indexName']})
 }}
 
@@ -39,8 +39,8 @@
 {{ forms.textField({
     label: 'Entry date indexed field path',
     instructions: 'Path to date indexed for entries in elasticsearch, use a dot notated string',
-    id: 'elasticIndex',
-    name: 'elasticIndex',
+    id: 'entryDateIndexedFieldPath',
+    name: 'entryDateIndexedFieldPath',
     value: settings['entryDateIndexedFieldPath']})
 }}
 

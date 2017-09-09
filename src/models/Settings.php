@@ -61,9 +61,8 @@ class Settings extends Model
     public function rules()
     {
         return [
-            [['transformers', 'indexOptions'], 'array'],
             [['hosts', 'indexName', 'entryDateIndexedFieldPath'], 'string'],
-            [['hosts', 'index'], 'required']
+            [['hosts', 'indexName'], 'required']
         ];
     }
 }
