@@ -94,12 +94,11 @@ class DefaultController extends Controller
     { 
         Elasticraft::$plugin->elasticraftService->deleteIndex();
         Craft::$app->queue->push(new ElasticJob([
-            'elementType' => Entry::class,
-            'description' => 'Indexing all entries',
-        ]));
-        Craft::$app->queue->push(new ElasticJob([
-            'elementType' => GlobalSet::class,
-            'description' => 'Indexing all globals',
+            'elements' => [
+                Entry::find(),
+                GlobalSet::find()
+            ],
+            'description' => 'Indexing all entries and globals',
         ]));
         return $this->asJson(true);
     }

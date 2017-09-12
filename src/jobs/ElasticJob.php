@@ -31,7 +31,6 @@ class ElasticJob extends BaseJob
     // =========================================================================
 
     public $elements = [];
-    public $elementType;
     public $action = 'index';
 
     // Public Methods
@@ -39,10 +38,21 @@ class ElasticJob extends BaseJob
 
     public function execute($queue)
     {
-        if (isset($this->elementType))
-            $this->elements = $this->elementType::find();
-        $elementCount = count($this->elements);
+        $elementQueries = array_filter($this->elements, function($v) {
+            return $v instanceof craft\elements\db\ElementQueryInterface ?: false;
+        });
+        $this->elements = array_filter($this->elements, function($v) {
+            return $v instanceof craft\base\Element ?: false;
+        });
 
+        foreach ($elementQueries as $query) {
+            $this->elements = array_merge(
+                $this->elements, 
+                $query->all()
+            );
+        }
+
+        $elementCount = count($this->elements);
         $service = Elasticraft::$plugin->elasticraftService;
 
         // Create index if it does not exist yet

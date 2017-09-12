@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.3.2 - 2017-09-12
+### Fixed
+- Optimize indexing.
+- Make widget in entry edit page more informative. Now lets editor know status of Elasticsearch if entry is not found.
+- Throw errors in elasticService to make bug hunting easier.
+
 ## 0.3.1 - 2017-09-10
 ### Fixed
 - Make plugin more robust if no hosts are configured.

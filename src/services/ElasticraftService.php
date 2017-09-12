@@ -64,7 +64,7 @@ class ElasticraftService extends Component
         try {
             $response = $this->client->ping($params);
         } catch (\Exception $e) {
-            return Json::decode($e->getMessage());
+            throw $e;
         }
         return $response;
     }
@@ -80,7 +80,7 @@ class ElasticraftService extends Component
         try {
             $response = $this->client->indices()->exists($params);
         } catch (\Exception $e) {
-            return Json::decode($e->getMessage());
+            throw $e;
         }
         return $response;
     }
@@ -99,7 +99,7 @@ class ElasticraftService extends Component
         try {
             $response = $this->client->indices()->create($params);
         } catch (\Exception $e) {
-            return  Json::decode($e->getMessage());
+            throw $e;
         }
         return $response;
     }
@@ -115,7 +115,7 @@ class ElasticraftService extends Component
         try { 
             $response = $this->client->indices()->get($params); 
         } catch (\Exception $e) { 
-            return Json::decode($e->getMessage()); 
+                throw $e;
         }
         return $response;
     }
@@ -131,7 +131,7 @@ class ElasticraftService extends Component
         try {
             $response = $this->client->indices()->delete($params);
         } catch (\Exception $e) {
-            return Json::decode($e->getMessage());
+            throw $e;
         }
         return $response;
     }
@@ -160,7 +160,7 @@ class ElasticraftService extends Component
             $response = $this->client->indices()->refresh(['index' => $this->indexName ]);
             $response = $this->client->search($params);
         } catch (\Exception $e) {
-            return Json::decode($e->getMessage());
+            throw $e;
         }
         return $response;
     }
@@ -232,21 +232,24 @@ class ElasticraftService extends Component
             'index' => $this->indexName,
             'type' => $doc->type,
             'id' => $doc->id,
-            'body' => $doc->body
         ];
         try {
             switch ($action) {
                 case 'index':
+                    $params['body'] = $doc->body;
                     $response = $this->client->index($params);
                     break;
                 case 'delete':
                     $response = $this->client->delete($params);
+                    break;
                 default:
-                    throw new Exception("Action must be either 'index' or 'delete'.", 1);
+                    throw new \Exception("Action must be either 'index' or 'delete'.", 1);
                     break;
             }
         } catch (\Exception $e) {
-            return Json::decode($e->getMessage());
+            if ($e instanceof \Elasticsearch\Common\Exceptions\Missing404Exception)
+                return [];
+            throw $e;
         }
         return $response;
     }
@@ -351,7 +354,7 @@ class ElasticraftService extends Component
         try {
             $response = $this->client->bulk($params);
         } catch (\Exception $e) {
-            return Json::decode($e->getMessage());
+            throw $e;
         }
         return $response;
     }

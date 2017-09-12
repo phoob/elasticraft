@@ -3,15 +3,17 @@
     <h4 class="heading">{{ "Elasticsearch" | t('elasticraft') }}</h4>
   </div>
   <div class="data">
-    {% if doc %}
-      {% if dateIndexed %}
-        <h5 class="heading">{{ "Last indexed" | t('elasticraft') }}</h5>
-        <div class="value">{{ dateIndexed | datetime('short') }}</div>
-      {% else %}
-        {{ "Indexed date not found. Check your config." | t('elasticraft') }}
-      {% endif %}
+    {% if not ping %}
+      <p>{{ "Could not contact Elasticsearch. Check your config" | t('elasticraft') }}</p>
+    {% elseif not hasTransformer %}
+      <p>{{ "This entry type is not set up to be indexed to Elasticsearch." | t('elasticraft') }} </p>
+    {% elseif not doc %}
+      <p>{{ "Entry not indexed yet. Save entry to index it." | t('elasticraft') }}</p>
+    {% elseif not dateIndexed %}
+      <p>{{ "Indexed date not found. Check your config." | t('elasticraft') }}</p>
     {% else %}
-      {{ "Save entry to index it." | t('elasticraft') }}
+      <h5 class="heading">{{ "Last indexed" | t('elasticraft') }}</h5>
+      <div class="value">{{ dateIndexed | datetime('short') }}</div>
     {% endif %}
   </div>
 </div>
