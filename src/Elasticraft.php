@@ -16,7 +16,6 @@ use dfo\elasticraft\utilities\ElasticraftUtility as ElasticraftUtilityUtility;
 use dfo\elasticraft\widgets\ElasticraftWidget as ElasticraftWidgetWidget;
 use dfo\elasticraft\jobs\ElasticJob as ElasticJob;
 use dfo\elasticraft\models\ElasticDocument as ElasticDocument;
-use dfo\elasticraft\models\AsyncQueue as AsyncQueue;
 
 use Craft;
 use craft\base\Plugin;
