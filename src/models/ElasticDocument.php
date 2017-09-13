@@ -112,9 +112,10 @@ class ElasticDocument extends Model
         if( isset( $this->transformers[$transformer] ) ) 
             $this->body = $this->transformers[$transformer]->transform($element);
 
-        // set body['type'] if it is not alreade defined in transformer
+        // set body['type'] if it is not already defined in transformer
         if( !isset($this->body['type']) )
             $this->body['type'] = $transformer;
+        // add body['date'] if not already defined in transformer
         if( !isset($this->body['date']) )
             $this->body['date'] = $this->_getDates( $element );
     }
