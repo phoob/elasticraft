@@ -58,9 +58,6 @@ return [
     ],
   ],
 
-  // Path to date indexed for entries in elasticsearch, use a dot notated string
-  'entryDateIndexedFieldPath' => '_source.date.indexed',
-
   // Mapping of which page transformers should be used for which element types
   'transformers' => [
     // 'page' => new PageTransformer(),

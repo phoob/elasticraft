@@ -176,15 +176,19 @@ class ElasticraftService extends Component
      *
      * @param Entry $entry
      *
-     * @return int
+     * @return array
      */
-    public function getDocWithElement(Element $element)
+    public function getDocWithElement(Element $element): array
     {
+        // Bail if $element is not saved yet
+        if( !$element->id ) return [];
+
         $params = [
             'index' => $this->indexName,
             'type' => ElasticDocument::ELEMENT_DOCUMENT_TYPE,
             'id' => $element->id
         ];
+        
         try {
             $response = $this->client->get($params);
         } catch (\Exception $e) {

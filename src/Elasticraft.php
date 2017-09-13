@@ -208,24 +208,13 @@ class Elasticraft extends Plugin
         \Craft::$app->getView()->hook('cp.entries.edit.right-pane', function(&$context) {
             /** @var EntryModel $entry **/
             $entry = $context['entry'];
+            $doc = Elasticraft::$plugin->elasticraftService->getDocWithElement($entry);
             $params = [
                 'ping' => Elasticraft::$plugin->elasticraftService->ping(),
-                'dateFieldPath' => Elasticraft::$plugin->getSettings()->entryDateIndexedFieldPath,
                 'hasTransformer' => ElasticDocument::elementHasTransformer($entry),
-                'doc' => Elasticraft::$plugin->elasticraftService->getDocWithElement($entry),
+                'doc' => $doc,
+                'dateIndexed' => $doc ? $doc['_source']['date']['indexed'] : false,
             ];
-
-            // Retrieve dateIndexed from $response
-            if (is_array($params['doc'])) {
-                $pathParts = explode('.', $params['dateFieldPath']);
-                $current = $params['doc'];
-                foreach ($pathParts as $key) {
-                    $current = &$current[$key];
-                }
-                $params['dateIndexed'] = $current;
-            } else {
-                $params['dateIndexed'] = false;
-            }
 
             return Craft::$app->view->renderTemplate(
                 'elasticraft/entriesWidget', 
