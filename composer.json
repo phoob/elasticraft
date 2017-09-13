@@ -2,7 +2,7 @@
     "name": "dfo/elasticraft",
     "description": "Elasticsearch plugin for Craft 3",
     "type": "craft-plugin",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "keywords": [
         "craft",
         "cms",
