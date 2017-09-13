@@ -115,9 +115,11 @@ class ElasticDocument extends Model
         // set body['type'] if it is not already defined in transformer
         if( !isset($this->body['type']) )
             $this->body['type'] = $transformer;
-        // add body['date'] if not already defined in transformer
-        if( !isset($this->body['date']) )
-            $this->body['date'] = $this->_getDates( $element );
+
+        // set common body dates. date.indexed is needed for pruning stale documents.
+        $this->body['date']['indexed'] = time();
+        $this->body['date']['created'] = (int)$element->dateCreated->format('U');
+        $this->body['date']['updated'] = (int)$element->dateUpdated->format('U');
     }
 
     private function _getTransformerForElement( Element $element ): string
@@ -131,18 +133,4 @@ class ElasticDocument extends Model
                 return 'default';
         }
     }
-
-    private function _getDates(Element $element)
-    {
-        $dates['indexed'] = time();
-        // if the element type has properties for when the element is created or updated, add these to body.
-        if( isset( $element->dateCreated ) )
-            $dates['created'] = (int)$element->dateCreated->format('U');
-        if( isset( $element->dateUpdated ) )
-            $dates['updated'] = (int)$element->dateUpdated->format('U');
-
-        return $dates;
-    }
-
-
 }

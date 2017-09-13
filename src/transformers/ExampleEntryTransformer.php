@@ -26,17 +26,15 @@ class EntryTransformer extends BaseTransformer {
             'id' => $entry->id,
             'active' => $entry->enabled,
 
-            'date' => $this->getDates($entry),
             'updateNote' => $entry->updateNote,
 
             'slug' => $entry->slug,
             'uri' => $entry->uri,
             'type' => $entry->type->handle,
 
-
             'title' => $entry->title,
-            'body' => $this->getBody($entry),
 
+            'body' => $this->getBody($entry),
             'bodyText' => $this->getBodyText($entry),
         ];
     }
