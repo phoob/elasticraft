@@ -276,6 +276,36 @@ class ElasticraftService extends Component
         }
     }
 
+    /**
+     * Deletes all elements older than $now (unix epoch seconds)
+     *
+     * @param int $now    epoch seconds 
+     *
+     * @return bool
+     */
+    public function deleteDocumentsOlderThan(int $now): bool
+    {
+        $params = [
+            'index' => $this->indexName,
+            'body' => [
+                'query' => [
+                    'range' => [
+                        'date.indexed' => [
+                            'lt' => $now,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+        try {
+            $response = $this->client->indices()->refresh(['index' => $this->indexName ]);
+            $response = $this->client->deleteByQuery( $params );
+        } catch (\Exception $e) {
+            throw $e;
+        }
+        return true;
+    }
+
     // Private methods
     // =========================================================================
 

@@ -90,6 +90,19 @@ class DefaultController extends Controller
         return $this->asJson($result);
     }
 
+    public function actionReindex()
+    {
+        Craft::$app->queue->push(new ElasticJob([
+            'elements' => [
+                Entry::find(),
+                GlobalSet::find()
+            ],
+            'deleteStale' => true,
+            'description' => 'Reindexing all entries and globals and deleting stale',
+        ]));
+        return $this->asJson(true);
+    }
+
     public function actionRecreateIndex() 
     { 
         Elasticraft::$plugin->elasticraftService->deleteIndex();

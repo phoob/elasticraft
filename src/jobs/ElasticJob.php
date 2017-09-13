@@ -32,6 +32,7 @@ class ElasticJob extends BaseJob
 
     public $elements = [];
     public $action = 'index';
+    public $deleteStale = false;
 
     // Public Methods
     // =========================================================================
@@ -59,6 +60,9 @@ class ElasticJob extends BaseJob
         if( !$service->indexExists() )
             $service->createIndex();
 
+        // Save time for in case we need it after processing
+        $now = time();
+
         // Process elements and set progress
         for( $i=0; $i < $elementCount; $i++ ) { 
             // Set progress counter
@@ -69,6 +73,10 @@ class ElasticJob extends BaseJob
                 $this->action
             );
         }
+
+        // Delete documents in index that weren't indexed in this job
+        if( $this->deleteStale )
+            $service->deleteDocumentsOlderThan($now);
     }
 
     // Protected Methods
