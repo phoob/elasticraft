@@ -32,6 +32,7 @@ class ElasticDocument extends Model
 {
 
     const ELEMENT_DOCUMENT_TYPE = 'element';
+    const GLOBALSET_PREFIX = 'global-';
 
     // Public Properties
     // =========================================================================
@@ -112,8 +113,10 @@ class ElasticDocument extends Model
             $this->body = $this->transformers[$transformer]->transform($element);
 
         // set body['type'] if it is not alreade defined in transformer
-        if (!isset($this->body['type']))
+        if( !isset($this->body['type']) )
             $this->body['type'] = $transformer;
+        if( !isset($this->body['date']) )
+            $this->body['date'] = $this->_getDates( $element );
     }
 
     private function _getTransformerForElement( Element $element ): string
@@ -122,10 +125,23 @@ class ElasticDocument extends Model
             case 'craft\elements\Entry':
                 return $element->section->handle;
             case 'craft\elements\GlobalSet':
-                return $element->handle;
+                return self::GLOBALSET_PREFIX . $element->handle;
             default:
                 return 'default';
         }
     }
+
+    private function _getDates(Element $element)
+    {
+        $dates['indexed'] = time();
+        // if the element type has properties for when the element is created or updated, add these to body.
+        if( isset( $element->dateCreated ) )
+            $dates['created'] = (int)$element->dateCreated->format('U');
+        if( isset( $element->dateUpdated ) )
+            $dates['updated'] = (int)$element->dateUpdated->format('U');
+
+        return $dates;
+    }
+
 
 }
