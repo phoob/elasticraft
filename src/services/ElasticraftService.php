@@ -115,7 +115,9 @@ class ElasticraftService extends Component
         try { 
             $response = $this->client->indices()->get($params); 
         } catch (\Exception $e) { 
-                throw $e;
+            if ($e instanceof \Elasticsearch\Common\Exceptions\Missing404Exception)
+                return [];
+            throw $e;
         }
         return $response;
     }
@@ -123,17 +125,19 @@ class ElasticraftService extends Component
     /**
      * Delete index.
      *
-     * @return array
+     * @return bool
      */
-    public function deleteIndex(): array
+    public function deleteIndex(): bool
     {
         $params = ['index' => $this->indexName];
         try {
             $response = $this->client->indices()->delete($params);
         } catch (\Exception $e) {
+            if ($e instanceof \Elasticsearch\Common\Exceptions\Missing404Exception)
+                return false;
             throw $e;
         }
-        return $response;
+        return true;
     }
 
     /**
@@ -160,6 +164,8 @@ class ElasticraftService extends Component
             $response = $this->client->indices()->refresh(['index' => $this->indexName ]);
             $response = $this->client->search($params);
         } catch (\Exception $e) {
+            if ($e instanceof \Elasticsearch\Common\Exceptions\Missing404Exception)
+                return [];
             throw $e;
         }
         return $response;
@@ -182,9 +188,10 @@ class ElasticraftService extends Component
         try {
             $response = $this->client->get($params);
         } catch (\Exception $e) {
-            return false;
+            if ($e instanceof \Elasticsearch\Common\Exceptions\Missing404Exception)
+                return [];
+            throw $e;
         }
-
         return $response;
     }
 

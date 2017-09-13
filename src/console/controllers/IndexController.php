@@ -59,8 +59,7 @@ class IndexController extends Controller
     public function actionRecreate()
     {
         echo "Deleting old index...";
-        $result = Elasticraft::$plugin->elasticraftService->deleteIndex();
-        if ( isset( $result['acknowledged'] ) )
+        if ( $result = Elasticraft::$plugin->elasticraftService->deleteIndex() )
             echo " done!";
         else echo " not found.";
         echo "\nCreating new index...";
