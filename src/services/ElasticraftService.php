@@ -327,21 +327,29 @@ class ElasticraftService extends Component
 
     private function _getElasticHosts(): array
     {
-        $uris = array_filter(
-            explode( ',', Elasticraft::$plugin->getSettings()->hosts ), 
-            function($uri){ return filter_var($uri, FILTER_VALIDATE_URL); }
-        );
-        return $uris;
+        if( is_string( Elasticraft::$plugin->getSettings()->hosts ) ) {
+            $uris = array_filter(
+                explode( ',', Elasticraft::$plugin->getSettings()->hosts ), 
+                function($uri){ return filter_var($uri, FILTER_VALIDATE_URL); }
+            );
+            return $uris;
+        } else {
+            throw new \Exception("Elastic hosts must be a string.", 1);
+        }
     }
 
     private function _getIndexName(): string
     {
-        return Elasticraft::$plugin->getSettings()->indexName;
+        if( is_string( Elasticraft::$plugin->getSettings()->indexName ) ) {
+            return Elasticraft::$plugin->getSettings()->indexName;
+        } else {
+            throw new \Exception("Elastic indexName must be a string.", 1);
+        }
     }
 
     private function _getIndexOptions(): array
     {
-        return Elasticraft::$plugin->getSettings()->indexOptions;
+        return Elasticraft::$plugin->getSettings()->indexOptions ?: [];
     }
 
     /**
