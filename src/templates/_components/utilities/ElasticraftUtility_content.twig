@@ -35,15 +35,11 @@
       <thead><tr><th>Document type</th><th>Count</th></tr></thead>
       <tbody></tbody>
     </table>
+    <p><input type="button" class="btn" name="elasticraft/default/ping" value="Refresh table" /></p>
     <h2>Index utilities</h2>
-    <p><input type="button" class="btn" name="elasticraft/default/ping" value="Refresh" />
-      Refreshes the document count in the table above.
-    <p><input type="button" class="btn" name="elasticraft/default/reindex" value="Reindex" />
-      Reindexes all entries and globalsets, and then deletes all documents with which weren't indexed in this operation.
-    </p>
-    <p><input type="button" class="btn" name="elasticraft/default/recreate-index" value="Recreate index" />
-      Deletes current index (if it exists), creates a new index and indexes all entries and globalsets to it. Use this if you have modified the index options (mapping) in the config.
-    </p>
-      
+    <input type="button" class="btn success" name="elasticraft/default/reindex" value="Reindex" />
+    <p>Reindexes all entries and globalsets, and then deletes all documents with which weren't indexed in this operation.</p>
+    <input type="button" class="btn error" name="elasticraft/default/recreate-index" value="Recreate index" />
+    <p>Deletes current index (if it exists), creates a new index and indexes all entries and globalsets to it. Use this if you have modified the index options (mapping) in the config.</p>
   </div>
 </form>
