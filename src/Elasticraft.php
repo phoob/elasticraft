@@ -19,6 +19,7 @@ use dfo\elasticraft\models\ElasticDocument as ElasticDocument;
 
 use Craft;
 use craft\base\Plugin;
+use craft\base\Element;
 use craft\services\Plugins;
 use craft\events\PluginEvent;
 use craft\console\Application as ConsoleApplication;
@@ -136,13 +137,9 @@ class Elasticraft extends Plugin
                 // we do not want to add jobs for every one of these.
                 if( !$event->element instanceof craft\elements\MatrixBlock ) {
                     Elasticraft::$plugin->elasticraftService->processElement($event->element, 'index');
-                    Craft::$app->queue->push(new ElasticJob([
-                        'elements' => [
-                            $event->element->getAncestors(),
-                            $event->element->getDescendants()
-                        ],
-                        'description' => 'Indexing ancestors and descendants of saved element'
-                    ]));
+                    $this->_indexAncestorsAndDescendants( $event->element, 
+                        'Rendexing ancestors and descendants of saved element'
+                    );
                 }
             }
         );
@@ -152,14 +149,9 @@ class Elasticraft extends Plugin
             Elements::EVENT_BEFORE_DELETE_ELEMENT,
             function (ElementEvent $event) {
                 Elasticraft::$plugin->elasticraftService->processElement($event->element, 'delete');
-                Craft::$app->queue->push(new ElasticJob([
-                    // Have to get the actual elements before delete
-                    'elements' => array_merge(
-                        $event->element->getAncestors()->all(),
-                        $event->element->getDescendants()->all()
-                    ),
-                    'description' => 'Reindexing ancestors and descendands of deleted element',
-                ]));
+                $this->_indexAncestorsAndDescendants( $event->element, 
+                    'Reindexing ancestors and descendands of deleted element'
+                );
             }
         );
 
@@ -167,14 +159,9 @@ class Elasticraft extends Plugin
             Structures::className(),
             Structures::EVENT_BEFORE_MOVE_ELEMENT,
             function (MoveElementEvent $event) {
-                Craft::$app->queue->push(new ElasticJob([
-                    // Have to get the actual elements before move
-                    'elements' => array_merge(
-                        $event->element->getAncestors()->all(),
-                        $event->element->getDescendants()->all()
-                    ),
-                    'description' => 'Reindexing previous ancestors and descendands of moved element',
-                ]));
+                $this->_indexAncestorsAndDescendants( $event->element, 
+                    'Reindexing previous ancestors and descendands of moved element'
+                );
             }
         );
 
@@ -183,13 +170,9 @@ class Elasticraft extends Plugin
             Elements::EVENT_AFTER_UPDATE_SLUG_AND_URI,
             function (ElementEvent $event) {
                 Elasticraft::$plugin->elasticraftService->processElement($event->element, 'index');
-                Craft::$app->queue->push(new ElasticJob([
-                    'elements' => [
-                        $event->element->getAncestors(),
-                        $event->element->getDescendants()
-                    ],
-                    'description' => 'Reindexing new ancestors and descendands of moved element'
-                ]));
+                $this->_indexAncestorsAndDescendants( $event->element, 
+                    'Reindexing new ancestors and descendands of moved element'
+                );
             }
         );
 
@@ -215,7 +198,6 @@ class Elasticraft extends Plugin
                 'doc' => $doc,
                 'dateIndexed' => $doc ? $doc['_source']['date']['indexed'] : false,
             ];
-
             return Craft::$app->view->renderTemplate(
                 'elasticraft/entriesWidget', 
                 $params
@@ -279,4 +261,16 @@ class Elasticraft extends Plugin
             ]
         );
     }
+
+    protected function _indexAncestorsAndDescendants(Element $element, $description = null)
+    {
+        Craft::$app->queue->push(new ElasticJob([
+            'elements' => array_merge(
+                $element->getAncestors()->all(),
+                $element->getDescendants()->all()
+            ),
+            'description' => $description,
+        ]));
+    }
+
 }
