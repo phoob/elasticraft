@@ -39,21 +39,16 @@ class ElasticJob extends BaseJob
 
     public function execute($queue)
     {
-        $elementQueries = array_filter($this->elements, function($v) {
-            return $v instanceof craft\elements\db\ElementQueryInterface ?: false;
-        });
-        $this->elements = array_filter($this->elements, function($v) {
-            return $v instanceof craft\base\Element ?: false;
-        });
-
-        foreach ($elementQueries as $query) {
-            $this->elements = array_merge(
-                $this->elements, 
-                $query->all()
-            );
+        $elements = [];
+        foreach ($this->elements as $v) {
+            if( $v instanceof craft\base\Element ) {
+                $elements[] = $v;
+            } else if( $v instanceof craft\elements\db\ElementQueryInterface ) {
+                $elements = array_merge( $elements, $v->all() );
+            }
         }
 
-        $elementCount = count($this->elements);
+        $elementCount = count($elements);
         $service = Elasticraft::$plugin->elasticraftService;
 
         // Create index if it does not exist yet
@@ -69,7 +64,7 @@ class ElasticJob extends BaseJob
             $this->setProgress($queue, $i / $elementCount);
             // Process element
             $service->processElement(
-                $this->elements[$i], 
+                $elements[$i], 
                 $this->action
             );
         }
