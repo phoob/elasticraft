@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.3.5 - 2017-11-10
+### Added
+- Utility button to remove stale and failed jobs from queue, to allow other jobs to start.
+
+### Fixed
+- Made main plugin file DRY-er.
+- Made elastic jobs and service safer.
+- Updated dependencies.
+
 ## 0.3.4 - 2017-09-13
 ### Added
 - New option to reindex all elements, and in the same operation deleting stale documents in Elasticsearch, effectively recreating the index with no down time.
