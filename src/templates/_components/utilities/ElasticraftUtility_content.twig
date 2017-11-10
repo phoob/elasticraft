@@ -41,5 +41,8 @@
     <p>Reindexes all entries and globalsets, and then deletes all documents with which weren't indexed in this operation.</p>
     <input type="button" class="btn error" name="elasticraft/default/recreate-index" value="Recreate index" />
     <p>Deletes current index (if it exists), creates a new index and indexes all entries and globalsets to it. Use this if you have modified the index options (mapping) in the config.</p>
+    <h2>Bonus utilities</h2>
+    <input type="button" class="btn" name="elasticraft/default/release-stale-jobs" value="Delete stale jobs from queue" />
+    <p>This will delete all stale and failed jobs from the queue, to allow other jobs to continue. After using this, you might want to reindex all entries.</p>
   </div>
 </form>

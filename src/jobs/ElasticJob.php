@@ -55,7 +55,7 @@ class ElasticJob extends BaseJob
         if( !$service->indexExists() )
             $service->createIndex();
 
-        // Save time for in case we need it after processing
+        // Save time in case we need it after processing
         $now = time();
 
         // Process elements and set progress

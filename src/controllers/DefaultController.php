@@ -125,4 +125,22 @@ class DefaultController extends Controller
         ]);
     }
 
+    public function actionReleaseStaleJobs()
+    {
+        $response = Craft::$app->queue->getJobInfo();
+        $jobs = [
+            'kept' => [],
+            'released' => []
+        ];
+        foreach ($response as $job) {
+            if ($job['status'] > 1) {
+                Craft::$app->queue->release($job['id']);
+                $jobs['released'][] = $job;
+            } else {
+                $jobs['kept'][] = $job;
+            }
+        }
+        return $this->asJson($jobs);
+    }
+
 }
