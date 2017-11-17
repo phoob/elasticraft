@@ -120,6 +120,8 @@ class ElasticDocument extends Model
         $this->body['date']['indexed'] = time();
         $this->body['date']['created'] = (int)$element->dateCreated->format('U');
         $this->body['date']['updated'] = (int)$element->dateUpdated->format('U');
+        $this->body['date']['publish'] = isset($element->postDate) ? (int)$element->postDate->format('U') : null;
+        $this->body['date']['expire']  = isset($element->expiryDate) ? (int)$element->expiryDate->format('U') : null;
     }
 
     private function _getTransformerForElement( Element $element ): string

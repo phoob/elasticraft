@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.3.6 - 2017-11-17
+### Fixed
+- postDate and expiryDate is needed for filtering entrie.
+
 ## 0.3.5 - 2017-11-10
 ### Added
 - Utility button to remove stale and failed jobs from queue, to allow other jobs to start.
