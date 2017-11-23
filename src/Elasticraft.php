@@ -27,11 +27,13 @@ use craft\web\UrlManager;
 use craft\services\Utilities;
 use craft\services\Dashboard;
 use craft\services\Elements;
+use craft\services\EntryRevisions;
 use craft\services\Structures;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\events\ElementEvent;
 use craft\events\MoveElementEvent;
+use craft\events\DraftEvent;
 use craft\elements\Entry;
 
 use yii\base\Event;
@@ -173,6 +175,22 @@ class Elasticraft extends Plugin
                 $this->_indexAncestorsAndDescendants( $event->element, 
                     'Reindexing new ancestors and descendands of moved element'
                 );
+            }
+        );
+
+        Event::on(
+            EntryRevisions::className(),
+            EntryRevisions::EVENT_AFTER_SAVE_DRAFT,
+            function (DraftEvent $event) {
+                Elasticraft::$plugin->elasticraftService->processElement($event->draft, 'index');
+            }
+        );
+
+        Event::on(
+            EntryRevisions::className(),
+            EntryRevisions::EVENT_BEFORE_DELETE_DRAFT,
+            function (DraftEvent $event) {
+                Elasticraft::$plugin->elasticraftService->processElement($event->draft, 'index');
             }
         );
 
