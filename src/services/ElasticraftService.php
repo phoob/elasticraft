@@ -281,6 +281,21 @@ class ElasticraftService extends Component
     }
 
     /**
+     * Process one draft.
+     *
+     * @param EntryDraft $doc    Document to process
+     * @param string          $action Name of action
+     *
+     * @return array
+     */
+    public function processEntryDraft(craft\models\EntryDraft $draft, string $action = 'index'): array
+    {
+        if ( $doc = ElasticDocument::withEntryDraft( $draft ) ) {
+            return $this->processDocument($doc, $action);
+        }
+    }
+
+    /**
      * Deletes all elements older than $now (unix epoch seconds)
      *
      * @param int $now    epoch seconds 

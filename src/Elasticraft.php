@@ -182,7 +182,7 @@ class Elasticraft extends Plugin
             EntryRevisions::className(),
             EntryRevisions::EVENT_AFTER_SAVE_DRAFT,
             function (DraftEvent $event) {
-                Elasticraft::$plugin->elasticraftService->processElement($event->draft, 'index');
+                Elasticraft::$plugin->elasticraftService->processEntryDraft($event->draft, 'index');
             }
         );
 
@@ -190,7 +190,7 @@ class Elasticraft extends Plugin
             EntryRevisions::className(),
             EntryRevisions::EVENT_BEFORE_DELETE_DRAFT,
             function (DraftEvent $event) {
-                Elasticraft::$plugin->elasticraftService->processElement($event->draft, 'index');
+                Elasticraft::$plugin->elasticraftService->processEntryDraft($event->draft, 'delete');
             }
         );
 

@@ -18,6 +18,7 @@ use Craft;
 use craft\web\Controller;
 use craft\elements\Entry;
 use craft\elements\GlobalSet;
+use craft\models\EntryDraft;
 use yii\helpers\Json;
 
 /**
@@ -95,7 +96,8 @@ class DefaultController extends Controller
         Craft::$app->queue->push(new ElasticJob([
             'elements' => [
                 Entry::find(),
-                GlobalSet::find()
+                GlobalSet::find(),
+                $this->_getDraftsQuery()
             ],
             'deleteStale' => true,
             'description' => 'Reindexing all entries and globals and deleting stale',
@@ -109,7 +111,8 @@ class DefaultController extends Controller
         Craft::$app->queue->push(new ElasticJob([
             'elements' => [
                 Entry::find(),
-                GlobalSet::find()
+                GlobalSet::find(),
+                $this->_getDraftsQuery()
             ],
             'description' => 'Indexing all entries and globals',
         ]));
@@ -141,6 +144,30 @@ class DefaultController extends Controller
             }
         }
         return $this->asJson($jobs);
+    }
+
+    private function _getDraftsQuery($siteId = null): craft\db\Query
+    {
+        if ($siteId === null) {
+            $siteId = Craft::$app->getSites()->getPrimarySite()->id;
+        }
+
+        return (new craft\db\Query())
+            ->select([
+                'id',
+                'entryId',
+                'sectionId',
+                'creatorId',
+                'siteId',
+                'name',
+                'notes',
+                'data',
+                'dateCreated',
+                'dateUpdated',
+                'uid',
+            ])
+            ->from(['{{%entrydrafts}}'])
+            ->where(['siteId' => $siteId]);
     }
 
 }

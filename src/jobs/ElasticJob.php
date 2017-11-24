@@ -46,9 +46,14 @@ class ElasticJob extends BaseJob
             } else if( $v instanceof craft\elements\db\ElementQueryInterface ) {
                 $elements = array_merge( $elements, $v->all() );
             }
+            else if ( $v instanceof craft\db\Query ) {
+                # This is for drafts
+                $drafts = array_map(function($row){
+                    return Craft::$app->entryRevisions->getDraftById($row['id']);
+                }, $v->all());
+            }
         }
 
-        $elementCount = count($elements);
         $service = Elasticraft::$plugin->elasticraftService;
 
         // Create index if it does not exist yet
@@ -59,12 +64,24 @@ class ElasticJob extends BaseJob
         $now = time();
 
         // Process elements and set progress
+        $elementCount = count($elements);
         for( $i=0; $i < $elementCount; $i++ ) { 
             // Set progress counter
             $this->setProgress($queue, $i / $elementCount);
             // Process element
             $service->processElement(
                 $elements[$i], 
+                $this->action
+            );
+        }
+
+        $draftCount = count($drafts);
+        for( $i=0; $i < $draftCount; $i++ ) { 
+            // Set progress counter
+            $this->setProgress($queue, $i / $draftCount);
+            // Process element
+            $service->processEntryDraft(
+                $drafts[$i], 
                 $this->action
             );
         }

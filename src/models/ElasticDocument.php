@@ -32,6 +32,7 @@ class ElasticDocument extends Model
 {
 
     const ELEMENT_DOCUMENT_TYPE = 'element';
+    const DRAFT_DOCUMENT_TYPE = 'entryDraft';
     const GLOBALSET_PREFIX = 'global-';
 
     // Public Properties
@@ -65,6 +66,15 @@ class ElasticDocument extends Model
     {
         $instance = new self();
         $instance->_loadByElement( $element );
+        return $instance;
+    }
+
+    public static function withEntryDraft( craft\models\EntryDraft $element )
+    {
+        $instance = new self();
+        $instance->_loadByElement( $element );
+        $instance->id = $element->draftId;
+        $instance->type = self::DRAFT_DOCUMENT_TYPE;
         return $instance;
     }
 
@@ -118,8 +128,8 @@ class ElasticDocument extends Model
 
         // set common body dates. date.indexed is needed for pruning stale documents.
         $this->body['date']['indexed'] = time();
-        $this->body['date']['created'] = (int)$element->dateCreated->format('U');
-        $this->body['date']['updated'] = (int)$element->dateUpdated->format('U');
+        $this->body['date']['created'] = isset($element->dateCreated) ? (int)$element->dateCreated->format('U') : null;
+        $this->body['date']['updated'] = isset($element->dateUpdated) ? (int)$element->dateUpdated->format('U') : null;
         $this->body['date']['publish'] = isset($element->postDate) ? (int)$element->postDate->format('U') : null;
         $this->body['date']['expire']  = isset($element->expiryDate) ? (int)$element->expiryDate->format('U') : null;
     }
@@ -131,6 +141,8 @@ class ElasticDocument extends Model
                 return $element->section->handle;
             case 'craft\elements\GlobalSet':
                 return self::GLOBALSET_PREFIX . $element->handle;
+            case 'craft\models\EntryDraft':
+                return $element->section->handle;
             default:
                 return 'default';
         }
