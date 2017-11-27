@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.3.7 – 2017-11-27
+### Added
+- Index drafts.
+
 ## 0.3.6 - 2017-11-17
 ### Fixed
 - postDate and expiryDate is needed for filtering entrie.
