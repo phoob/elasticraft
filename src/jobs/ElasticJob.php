@@ -33,6 +33,7 @@ class ElasticJob extends BaseJob
     public $elements = [];
     public $action = 'index';
     public $deleteStale = false;
+    public $drafts = [];
 
     // Public Methods
     // =========================================================================
@@ -48,7 +49,7 @@ class ElasticJob extends BaseJob
             }
             else if ( $v instanceof craft\db\Query ) {
                 # This is for drafts
-                $drafts = array_map(function($row){
+                $this->drafts = array_map(function($row){
                     return Craft::$app->entryRevisions->getDraftById($row['id']);
                 }, $v->all());
             }
@@ -75,13 +76,13 @@ class ElasticJob extends BaseJob
             );
         }
 
-        $draftCount = count($drafts);
+        $draftCount = count($this->drafts);
         for( $i=0; $i < $draftCount; $i++ ) { 
             // Set progress counter
             $this->setProgress($queue, $i / $draftCount);
             // Process element
             $service->processEntryDraft(
-                $drafts[$i], 
+                $this->drafts[$i], 
                 $this->action
             );
         }
