@@ -206,7 +206,7 @@ class Elasticraft extends Plugin
         );
 
         // Add widget to edit entries
-        \Craft::$app->getView()->hook('cp.entries.edit.right-pane', function(&$context) {
+        Craft::$app->getView()->hook('cp.entries.edit.details', function(&$context) {
             /** @var EntryModel $entry **/
             $entry = $context['entry'];
             $doc = Elasticraft::$plugin->elasticraftService->getDocWithElement($entry);
@@ -222,24 +222,38 @@ class Elasticraft extends Plugin
             );
         });
 
-/**
- * Logging in Craft involves using one of the following methods:
- *
- * Craft::trace(): record a message to trace how a piece of code runs. This is mainly for development use.
- * Craft::info(): record a message that conveys some useful information.
- * Craft::warning(): record a warning message that indicates something unexpected has happened.
- * Craft::error(): record a fatal error that should be investigated as soon as possible.
- *
- * Unless `devMode` is on, only Craft::warning() & Craft::error() will log to `craft/storage/logs/web.log`
- *
- * It's recommended that you pass in the magic constant `__METHOD__` as the second parameter, which sets
- * the category to the method (prefixed with the fully qualified class name) where the constant appears.
- *
- * To enable the Yii debug toolbar, go to your user account in the AdminCP and check the
- * [] Show the debug toolbar on the front end & [] Show the debug toolbar on the Control Panel
- *
- * http://www.yiiframework.com/doc-2.0/guide-runtime-logging.html
- */
+        // Add indicator for if user is logged in
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        $cookie = new \yii\web\Cookie([
+            'name' => 'craft_has_logged_in',
+            'value' => 'true',
+            'expire' => time() + 86400,
+            'httpOnly' => false,
+        ]);
+        if ($currentUser) {
+            Craft::$app->getResponse()->getCookies()->add($cookie);
+        } else {
+            Craft::$app->getResponse()->getCookies()->remove($cookie);
+        }
+
+        /**
+         * Logging in Craft involves using one of the following methods:
+         *
+         * Craft::trace(): record a message to trace how a piece of code runs. This is mainly for development use.
+         * Craft::info(): record a message that conveys some useful information.
+         * Craft::warning(): record a warning message that indicates something unexpected has happened.
+         * Craft::error(): record a fatal error that should be investigated as soon as possible.
+         *
+         * Unless `devMode` is on, only Craft::warning() & Craft::error() will log to `craft/storage/logs/web.log`
+         *
+         * It's recommended that you pass in the magic constant `__METHOD__` as the second parameter, which sets
+         * the category to the method (prefixed with the fully qualified class name) where the constant appears.
+         *
+         * To enable the Yii debug toolbar, go to your user account in the AdminCP and check the
+         * [] Show the debug toolbar on the front end & [] Show the debug toolbar on the Control Panel
+         *
+         * http://www.yiiframework.com/doc-2.0/guide-runtime-logging.html
+         */
         Craft::info(
             Craft::t(
                 'elasticraft',
