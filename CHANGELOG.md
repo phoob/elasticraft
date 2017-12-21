@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.3.9 - 2017-12-21
+### Added
+- Cookie for logged in users for use in front end as admin link
+
+### Changed
+- Indexing drafts.
+
 ## 0.3.8 – 2017-11-29
 ### Fixed
 - Fix drafts.
