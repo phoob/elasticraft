@@ -89,8 +89,10 @@ class Elasticraft extends Plugin
         // Add in our console commands
         if (Craft::$app instanceof ConsoleApplication) {
             $this->controllerNamespace = 'dfo\elasticraft\console\controllers';
-        } else {
-            // Add indicator for if user is logged in
+        } 
+
+        // Add indicator for if user is logged in
+        if (Craft::$app instanceof craft\web\Application) {
             $currentUser = Craft::$app->getUser()->getIdentity();
             $cookie = new \yii\web\Cookie([
                 'name' => 'craft_has_logged_in',
@@ -102,7 +104,7 @@ class Elasticraft extends Plugin
                 Craft::$app->getResponse()->getCookies()->add($cookie);
             } else {
                 Craft::$app->getResponse()->getCookies()->remove($cookie);
-            }            
+            }
         }
 
         // Register our site routes
