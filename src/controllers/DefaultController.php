@@ -112,7 +112,7 @@ class DefaultController extends Controller
             'elements' => [
                 Entry::find(),
                 GlobalSet::find(),
-                $this->_getDraftsQuery()
+                Elasticraft::$plugin->elasticraftService->getCraftDrafts()
             ],
             'description' => 'Indexing all entries and globals',
         ]));
@@ -144,30 +144,6 @@ class DefaultController extends Controller
             }
         }
         return $this->asJson($jobs);
-    }
-
-    private function _getDraftsQuery($siteId = null): craft\db\Query
-    {
-        if ($siteId === null) {
-            $siteId = Craft::$app->getSites()->getPrimarySite()->id;
-        }
-
-        return (new craft\db\Query())
-            ->select([
-                'id',
-                'entryId',
-                'sectionId',
-                'creatorId',
-                'siteId',
-                'name',
-                'notes',
-                'data',
-                'dateCreated',
-                'dateUpdated',
-                'uid',
-            ])
-            ->from(['{{%entrydrafts}}'])
-            ->where(['siteId' => $siteId]);
     }
 
 }

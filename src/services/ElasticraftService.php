@@ -325,6 +325,22 @@ class ElasticraftService extends Component
         return true;
     }
 
+    public function getCraftDrafts($siteId = null): array
+    {
+        // Access private method _getDraftsQuery
+        $EntryRevisions = new craft\services\EntryRevisions();
+        $reflector = new \ReflectionObject($EntryRevisions);
+        $_getDraftsQuery = $reflector->getMethod('_getDraftsQuery');
+        $_getDraftsQuery->setAccessible(true);
+        $draftsQuery = $_getDraftsQuery->invoke($EntryRevisions);
+
+        $drafts = array_map(function($row){
+          return Craft::$app->entryRevisions->getDraftById($row['id']);
+        }, $draftsQuery->all() );
+
+        return $drafts;
+    }
+
     // Private methods
     // =========================================================================
 
