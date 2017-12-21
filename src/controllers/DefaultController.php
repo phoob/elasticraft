@@ -97,7 +97,7 @@ class DefaultController extends Controller
             'elements' => [
                 Entry::find(),
                 GlobalSet::find(),
-                $this->_getDraftsQuery()
+                Elasticraft::$plugin->elasticraftService->getCraftDrafts()
             ],
             'deleteStale' => true,
             'description' => 'Reindexing all entries and globals and deleting stale',
