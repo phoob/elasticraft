@@ -89,6 +89,20 @@ class Elasticraft extends Plugin
         // Add in our console commands
         if (Craft::$app instanceof ConsoleApplication) {
             $this->controllerNamespace = 'dfo\elasticraft\console\controllers';
+        } else {
+            // Add indicator for if user is logged in
+            $currentUser = Craft::$app->getUser()->getIdentity();
+            $cookie = new \yii\web\Cookie([
+                'name' => 'craft_has_logged_in',
+                'value' => 'true',
+                'expire' => time() + 86400,
+                'httpOnly' => false,
+            ]);
+            if ($currentUser) {
+                Craft::$app->getResponse()->getCookies()->add($cookie);
+            } else {
+                Craft::$app->getResponse()->getCookies()->remove($cookie);
+            }            
         }
 
         // Register our site routes
@@ -221,20 +235,6 @@ class Elasticraft extends Plugin
                 $params
             );
         });
-
-        // Add indicator for if user is logged in
-        $currentUser = Craft::$app->getUser()->getIdentity();
-        $cookie = new \yii\web\Cookie([
-            'name' => 'craft_has_logged_in',
-            'value' => 'true',
-            'expire' => time() + 86400,
-            'httpOnly' => false,
-        ]);
-        if ($currentUser) {
-            Craft::$app->getResponse()->getCookies()->add($cookie);
-        } else {
-            Craft::$app->getResponse()->getCookies()->remove($cookie);
-        }
 
         /**
          * Logging in Craft involves using one of the following methods:
