@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Fixed
+- Edit entry widget styling for Craft RC3
+
 ## 0.4.0 - 2017-12-21
 ### Added
 - Cookie for logged in users for use in front end as admin link
