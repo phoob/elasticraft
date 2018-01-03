@@ -11,8 +11,8 @@
         "elasticraft"
     ],
     "support": {
-        "docs": "https://github.com/netliferesearch/craft-elastic/blob/master/README.md",
-        "issues": "https://github.com/netliferesearch/craft-elastic/issues"
+        "docs": "https://github.com/phoob/elasticraft/blob/master/README.md",
+        "issues": "https://github.com/phoob/elasticraft/issues"
     },
     "license": "MIT",
     "authors": [
