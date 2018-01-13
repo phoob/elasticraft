@@ -60,7 +60,7 @@ class IndexController extends Controller
       $service->createIndex();
 
     $elements = array_merge(
-      Entry::find()->limit(100)->all(),
+      Entry::find()->all(),
       GlobalSet::find()->all(),
       $service->getCraftDrafts()
     );
