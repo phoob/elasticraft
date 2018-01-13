@@ -34,16 +34,6 @@
     value: settings['indexName']})
 }}
 
-<h2>Settings for the widget that is shown in the edit entry page</h2>
-
-{{ forms.textField({
-    label: 'Entry date indexed field path',
-    instructions: 'Path to date indexed for entries in elasticsearch, use a dot notated string',
-    id: 'entryDateIndexedFieldPath',
-    name: 'entryDateIndexedFieldPath',
-    value: settings['entryDateIndexedFieldPath']})
-}}
-
 {# Apparently settings not shown here must be emptied out #}
 {{ forms.hidden({
     id: 'transformers',
