@@ -46,11 +46,6 @@ use craft\elements\GlobalSet;
 */
 class IndexController extends Controller
 {
-  public $chunk_size = 20;
-
-  // Public Methods
-  // =========================================================================
-
   /**
   * Index all elements, globalsets and drafts to Elasticsearch
   *
@@ -64,25 +59,39 @@ class IndexController extends Controller
     if( !$service->indexExists() )
       $service->createIndex();
 
-    // Index entries
-    $entries = Entry::find()->all();
-    printf("Indexing %d entries\n", count($entries));
-    $this->indexElementsInChunks($entries);
-    unset($entries);
+    $elements = array_merge(
+      Entry::find()->limit(100)->all(),
+      GlobalSet::find()->all(),
+      $service->getCraftDrafts()
+    );
+    $this->stdout(sprintf("Indexing %d entries, globalsets and drafts\n", count($elements)), Console::BOLD);
 
-    // Index globalsets
-    $globalsets = GlobalSet::find()->all();
-    printf("Indexing %d globalsets\n", count($globalsets));
-    $this->indexElementsInChunks($globalsets);
-    unset($globalsets);
-
-    // Index entry drafts
-    $drafts = $service->getCraftDrafts();
-    printf("Indexing %d entry drafts\n", count($drafts));
-    $this->indexElementsInChunks($drafts);
-    unset($drafts);
-    printf("Done!\n");
-
+    $now = microtime(true);
+    $slow = [];
+    Console::startProgress(0,count($elements));
+    foreach ($elements as $index => $element) {
+      $n = microtime(true);
+      if (is_a($element, 'craft\base\Element')) {
+        $service->processElement( $element );
+      } elseif (is_a($element, 'craft\models\EntryDraft')) {
+        $service->processEntryDraft( $element );
+      }
+      $d = (microtime(true) - $n);
+      if ($d > 0.5) $slow[] = [
+        'time' => $d,
+        'title' => $element->title,
+      ];
+      Console::updateProgress($index + 1, count($elements));
+    }
+    Console::endProgress();
+    
+    $this->stdout("Done in " . round((microtime(true) - $now),3) . " seconds.\n");
+    if ($slow) {
+      $this->stdout("These elements indexed slowly:\n");
+      foreach ($slow as $e) {
+        $this->stdout(round($e['time'],3) . "\t" . $e['title'] . "\n");
+      }
+    }
   }
 
   /**
@@ -92,50 +101,9 @@ class IndexController extends Controller
   */
   public function actionRecreate()
   {
-    echo "Deleting old index...";
-    if ( $result = Elasticraft::$plugin->elasticraftService->deleteIndex() )
-      echo " done!";
-    else echo " not found.";
-    echo "\nCreating new index...";
-    $result = Elasticraft::$plugin->elasticraftService->createIndex();
-    if ( isset( $result['acknowledged'] ) ) {
-      echo " done!";
-    } else {
-      echo " Index could not be created\n";
-      foreach ($result as $k => $v) {
-        echo "  " . $k . ": " . $v;
-      }
-      echo "\n";
-      die();
-    }
-    $elements = array_merge(
-      Entry::find()->all(),
-      GlobalSet::find()->all()
-    );
-    echo "\nIndexing " . count($elements) . " elements.";
-
-    $this->indexElementsInChunks($elements);
-
-    echo " done!\n";
-  }
-
-  private function indexElementsInChunks($elements, $chunk_size = null, $print_dots = true)
-  {
-    $service = Elasticraft::$plugin->elasticraftService;
-
-    if ($chunk_size == null) $chunk_size = $this->chunk_size;
-    $elements_chunks = array_chunk( $elements, $this->chunk_size );
-    foreach ($elements_chunks as $elements) {
-      foreach ($elements as $element) {
-        if (is_a($element, 'craft\base\Element'))
-          $service->processElement( $element );
-        elseif (is_a($element, 'craft\models\EntryDraft'))
-          $service->processEntryDraft( $element );
-        elseif ($print_dots) echo "+";
-      }
-      if ($print_dots) echo ".";
-    }
-    if ($print_dots) echo "\n";
+    // Delete old index
+    Elasticraft::$plugin->elasticraftService->deleteIndex();
+    $this->actionIndex();
   }
 
 }

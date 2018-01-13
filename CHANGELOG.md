@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.4.2 - 2018-01-14
+### Fixed
+- Clean up console controller
+
 ## 0.4.1 - 2018-01-03
 ### Fixed
 - Edit entry widget styling for Craft RC3
