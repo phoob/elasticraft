@@ -296,6 +296,22 @@ class ElasticraftService extends Component
     }
 
     /**
+     * Process one version.
+     *
+     * @param EntryVersion $doc    Document to process
+     * @param string          $action Name of action
+     *
+     * @return array
+     */
+    public function processVersion(craft\models\EntryVersion $version, string $action = 'index'): array
+    {
+        // if ( $doc = ElasticDocument::withElement( Entry::find()->id($version->id)->one() ) ) {
+        if ( $doc = ElasticDocument::withVersion( $version ) ) {
+            return $this->processDocument($doc, $action);
+        }
+    }
+
+    /**
      * Deletes all elements older than $now (unix epoch seconds)
      *
      * @param int $now    epoch seconds 

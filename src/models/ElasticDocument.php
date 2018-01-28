@@ -15,6 +15,7 @@ use dfo\elasticraft\Elasticraft;
 use Craft;
 use craft\base\Model;
 use craft\base\Element;
+use craft\elements\Entry;
 
 /**
  * ElasticDocument Model
@@ -63,6 +64,13 @@ class ElasticDocument extends Model
     }
 
     public static function withElement( Element $element )
+    {
+        $instance = new self();
+        $instance->_loadByElement( $element );
+        return $instance;
+    }
+
+    public static function withVersion( craft\models\EntryVersion $element )
     {
         $instance = new self();
         $instance->_loadByElement( $element );
@@ -138,11 +146,11 @@ class ElasticDocument extends Model
     {
         switch (get_class($element)) {
             case 'craft\elements\Entry':
+            case 'craft\models\EntryDraft':
+            case 'craft\models\EntryVersion':
                 return $element->section->handle;
             case 'craft\elements\GlobalSet':
                 return self::GLOBALSET_PREFIX . $element->handle;
-            case 'craft\models\EntryDraft':
-                return $element->section->handle;
             default:
                 return 'default';
         }

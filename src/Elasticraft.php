@@ -34,6 +34,7 @@ use craft\events\RegisterUrlRulesEvent;
 use craft\events\ElementEvent;
 use craft\events\MoveElementEvent;
 use craft\events\DraftEvent;
+use craft\events\VersionEvent;
 use craft\elements\Entry;
 
 use yii\base\Event;
@@ -207,6 +208,14 @@ class Elasticraft extends Plugin
             EntryRevisions::EVENT_BEFORE_DELETE_DRAFT,
             function (DraftEvent $event) {
                 Elasticraft::$plugin->elasticraftService->processEntryDraft($event->draft, 'delete');
+            }
+        );
+
+        Event::on(
+            EntryRevisions::className(),
+            EntryRevisions::EVENT_AFTER_REVERT_ENTRY_TO_VERSION,
+            function (VersionEvent $event) {
+                Elasticraft::$plugin->elasticraftService->processVersion($event->version, 'index');
             }
         );
 
