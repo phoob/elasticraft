@@ -66,15 +66,16 @@ class IndexController extends Controller
     );
     $this->stdout(sprintf("Indexing %d entries, globalsets and drafts\n", count($elements)), Console::BOLD);
 
+    // Save time in case we need it after processing
     $now = microtime(true);
     $slow = [];
     Console::startProgress(0,count($elements));
     foreach ($elements as $index => $element) {
       $n = microtime(true);
-      if (is_a($element, 'craft\base\Element')) {
-        $service->processElement( $element );
-      } elseif (is_a($element, 'craft\models\EntryDraft')) {
+      if (is_a($element, 'craft\models\EntryDraft')) {
         $service->processEntryDraft( $element );
+      } elseif (is_a($element, 'craft\base\Element')) {
+        $service->processElement( $element );
       }
       $d = (microtime(true) - $n);
       if ($d > 0.5) $slow[] = [

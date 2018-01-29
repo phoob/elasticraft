@@ -33,33 +33,29 @@ class ElasticJob extends BaseJob
     public $elements = [];
     public $action = 'index';
     public $deleteStale = false;
-    public $drafts = [];
 
     // Public Methods
     // =========================================================================
 
     public function execute($queue)
     {
-        $elements = [];
-        foreach ($this->elements as $v) {
-            if( $v instanceof craft\base\Element ) {
-                $elements[] = $v;
-            } else if( $v instanceof craft\elements\db\ElementQueryInterface ) {
-                $elements = array_merge( $elements, $v->all() );
-            }
-            else if ( $v instanceof craft\db\Query ) {
-                # This is for drafts
-                $this->drafts = array_map(function($row){
-                    return Craft::$app->entryRevisions->getDraftById($row['id']);
-                }, $v->all());
-            }
-        }
-
         $service = Elasticraft::$plugin->elasticraftService;
 
         // Create index if it does not exist yet
         if( !$service->indexExists() )
             $service->createIndex();
+
+        // Harmonize elements array
+        $elements = [];
+        foreach ($this->elements as $v) {
+            if( $v instanceof craft\base\Element ) {
+                $elements[] = $v;
+            } else if ( $v instanceof craft\elements\db\ElementQueryInterface ) {
+                $elements = array_merge( $elements, $v->all() );
+            } else if ( is_array( $v ) ) { // Drafts array
+                $elements = array_merge( $elements, $v );
+            }
+        }
 
         // Save time in case we need it after processing
         $now = time();
@@ -70,21 +66,11 @@ class ElasticJob extends BaseJob
             // Set progress counter
             $this->setProgress($queue, $i / $elementCount);
             // Process element
-            $service->processElement(
-                $elements[$i], 
-                $this->action
-            );
-        }
-
-        $draftCount = count($this->drafts);
-        for( $i=0; $i < $draftCount; $i++ ) { 
-            // Set progress counter
-            $this->setProgress($queue, $i / $draftCount);
-            // Process element
-            $service->processEntryDraft(
-                $this->drafts[$i], 
-                $this->action
-            );
+            if (is_a($elements[$i], 'craft\models\EntryDraft')) {
+              $service->processEntryDraft( $elements[$i], $this->action );
+            } else if (is_a($elements[$i], 'craft\base\Element')) {
+              $service->processElement( $elements[$i], $this->action );
+            }
         }
 
         // Delete documents in index that weren't indexed in this job
