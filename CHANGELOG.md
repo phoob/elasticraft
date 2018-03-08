@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.4.6
+### Changed
+- Do not index elements that do not have transformers.
+
+### Fixed
+- When publishing drafts, they didn't get uris. Now they do.
+- Return values in ElasticraftService
+- Indexing drafts via CLI
+
 ## 0.4.5
 ### Fixed
 - Index when reverting to older version of entry
