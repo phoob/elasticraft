@@ -278,6 +278,7 @@ class ElasticraftService extends Component
         if ( $doc = ElasticDocument::withElement( $element ) ) {
             return $this->processDocument($doc, $action);
         }
+        return [];
     }
 
     /**
@@ -293,6 +294,7 @@ class ElasticraftService extends Component
         if ( $doc = ElasticDocument::withEntryDraft( $draft ) ) {
             return $this->processDocument($doc, $action);
         }
+        return [];
     }
 
     /**
@@ -309,6 +311,7 @@ class ElasticraftService extends Component
         if ( $doc = ElasticDocument::withVersion( $version ) ) {
             return $this->processDocument($doc, $action);
         }
+        return [];
     }
 
     /**
