@@ -213,6 +213,18 @@ class Elasticraft extends Plugin
 
         Event::on(
             EntryRevisions::className(),
+            EntryRevisions::EVENT_AFTER_PUBLISH_DRAFT,
+            function (DraftEvent $event) {
+                $entry = Entry::find()->id($event->draft->id)->one();
+                Elasticraft::$plugin->elasticraftService->processElement($entry, 'index');
+                $this->_indexAncestorsAndDescendants( $entry, 
+                    'Rendexing ancestors and descendants of published draft'
+                );
+            }
+        );
+
+        Event::on(
+            EntryRevisions::className(),
             EntryRevisions::EVENT_AFTER_REVERT_ENTRY_TO_VERSION,
             function (VersionEvent $event) {
                 Elasticraft::$plugin->elasticraftService->processVersion($event->version, 'index');
