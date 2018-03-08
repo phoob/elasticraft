@@ -152,8 +152,8 @@ class Elasticraft extends Plugin
             Elements::className(),
             Elements::EVENT_AFTER_SAVE_ELEMENT,
             function (ElementEvent $event) {
-                // All matrix blocks in elements fires this event individually, 
-                // we do not want to add jobs for every one of these.
+                // All matrix blocks in elements fires this event individually. 
+                // Let's not bother with those.
                 if( !$event->element instanceof craft\elements\MatrixBlock ) {
                     Elasticraft::$plugin->elasticraftService->processElement($event->element, 'index');
                     $this->_indexAncestorsAndDescendants( $event->element, 

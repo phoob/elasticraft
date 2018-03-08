@@ -66,24 +66,30 @@ class ElasticDocument extends Model
     public static function withElement( Element $element )
     {
         $instance = new self();
-        $instance->_loadByElement( $element );
-        return $instance;
+        if ( $instance->_loadByElement( $element ) ) {
+            return $instance;
+        }
+        return false;
     }
 
     public static function withVersion( craft\models\EntryVersion $element )
     {
         $instance = new self();
-        $instance->_loadByElement( $element );
-        return $instance;
+        if ( $instance->_loadByElement( $element ) ) {
+            return $instance;
+        }
+        return false;
     }
 
     public static function withEntryDraft( craft\models\EntryDraft $element )
     {
         $instance = new self();
-        $instance->_loadByElement( $element );
-        $instance->id = $element->draftId;
-        $instance->type = self::DRAFT_DOCUMENT_TYPE;
-        return $instance;
+        if ( $instance->_loadByElement( $element ) ) {
+            $instance->id = $element->draftId;
+            $instance->type = self::DRAFT_DOCUMENT_TYPE;
+            return $instance;
+        }
+        return false;
     }
 
     // Helper methods
@@ -121,14 +127,18 @@ class ElasticDocument extends Model
 
     private function _loadByElement( Element $element )
     {
-        $this->type = self::ELEMENT_DOCUMENT_TYPE;
-        $this->id = $element->id;
-
         $transformer = $this->_getTransformerForElement( $element );
 
-        // set document body if one is defined in the config.
-        if( isset( $this->transformers[$transformer] ) ) 
-            $this->body = $this->transformers[$transformer]->transform($element);
+        // if there is no defined transformer for this element, stop now.
+        if ( !isset( $this->transformers[$transformer] ) ) {
+            return false;
+        }
+
+        // We have a body transformer.
+        $this->body = $this->transformers[$transformer]->transform($element);
+        
+        $this->type = self::ELEMENT_DOCUMENT_TYPE;
+        $this->id = $element->id;
 
         // set body['type'] if it is not already defined in transformer
         if( !isset($this->body['type']) )
@@ -140,6 +150,8 @@ class ElasticDocument extends Model
         $this->body['date']['updated'] = isset($element->dateUpdated) ? (int)$element->dateUpdated->format('U') : null;
         $this->body['date']['publish'] = isset($element->postDate) ? (int)$element->postDate->format('U') : null;
         $this->body['date']['expire']  = isset($element->expiryDate) ? (int)$element->expiryDate->format('U') : null;
+
+        return true;
     }
 
     private function _getTransformerForElement( Element $element ): string
@@ -152,7 +164,7 @@ class ElasticDocument extends Model
             case 'craft\elements\GlobalSet':
                 return self::GLOBALSET_PREFIX . $element->handle;
             default:
-                return 'default';
+                return get_class($element);
         }
     }
 }
