@@ -227,7 +227,11 @@ class Elasticraft extends Plugin
             EntryRevisions::className(),
             EntryRevisions::EVENT_AFTER_REVERT_ENTRY_TO_VERSION,
             function (VersionEvent $event) {
-                Elasticraft::$plugin->elasticraftService->processVersion($event->version, 'index');
+                $entry = Entry::find()->id($event->version->id)->one();
+                Elasticraft::$plugin->elasticraftService->processElement($entry, 'index');
+                $this->_indexAncestorsAndDescendants( $entry, 
+                    'Rendexing ancestors and descendants of restored entry'
+                );
             }
         );
 

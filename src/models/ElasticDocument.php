@@ -127,6 +127,8 @@ class ElasticDocument extends Model
 
     private function _loadByElement( Element $element )
     {
+        $this->type = self::ELEMENT_DOCUMENT_TYPE;
+        $this->id = $element->id;
         $transformer = $this->_getTransformerForElement( $element );
 
         // if there is no defined transformer for this element, stop now.
@@ -136,9 +138,6 @@ class ElasticDocument extends Model
 
         // We have a body transformer.
         $this->body = $this->transformers[$transformer]->transform($element);
-        
-        $this->type = self::ELEMENT_DOCUMENT_TYPE;
-        $this->id = $element->id;
 
         // set body['type'] if it is not already defined in transformer
         if( !isset($this->body['type']) )
