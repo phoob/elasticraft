@@ -378,11 +378,7 @@ class ElasticraftService extends Component
     private function _getElasticHosts(): array
     {
         if( is_string( Elasticraft::$plugin->getSettings()->hosts ) ) {
-            $uris = array_filter(
-                explode( ',', Elasticraft::$plugin->getSettings()->hosts ), 
-                function($uri){ return filter_var($uri, FILTER_VALIDATE_URL); }
-            );
-            return $uris;
+            return explode( ',', Elasticraft::$plugin->getSettings()->hosts );
         } else {
             throw new \Exception("Elastic hosts must be a string.", 1);
         }
